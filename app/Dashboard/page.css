@@ -1,0 +1,17 @@
+.horizontalRule {
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 100px;
+    margin: auto;
+}
+.disclaimer {
+  position: fixed;       
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;         
+  z-index: 1000;          
+  display: flex;  
+  justify-content: center;
+  align-items: center;  
+  background-color: rgba(0, 0, 0, 0.5);
+}
