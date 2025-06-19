@@ -3,7 +3,7 @@ import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
-import Header from "./Header/page";
+import Header from "../Header/page";
 import "./page.css";
 
 function Dashboard() {
@@ -18,19 +18,19 @@ function Dashboard() {
       router.push("/");
     }
   }, [account.isConnected, router]);
-    
-    useEffect(() => {
-  if (showDisclaimer) {
-    document.body.classList.add("modal-open");
-  } else {
-    document.body.classList.remove("modal-open");
-  }
 
-  return () => {
-    document.body.classList.remove("modal-open");
-  };
-}, [showDisclaimer]);
-    
+  useEffect(() => {
+    if (showDisclaimer) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [showDisclaimer]);
+
   return (
     <>
       <Header />
@@ -58,7 +58,7 @@ function Dashboard() {
               </p>
               <button
                 onClick={handleCloseDisclaimer}
-                className="mt-5 bg-yellow-400 w-fit m-auto flex justify-center pt-1 pb-1 rounded-lg text-lg pl-3 pr-3 text-center hover:bg-amber-400 hover:cursor-pointer"
+                className="mt-5 bg-teal-500 w-fit m-auto flex justify-center pt-1 pb-1 rounded-md text-lg pl-3 pr-3 text-center hover:bg-teal-400 hover:cursor-pointer"
               >
                 I acknowledge
               </button>
