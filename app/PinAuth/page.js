@@ -56,7 +56,13 @@ function SignIn() {
   return (
     <>
       <div className="flex flex-col items-center justify-center min-h-screen bg-stone-50">
-        <Image src={logo} alt="Aurika Logo" width={250} className="mb-4" />
+        <Image
+          src={logo}
+          alt="Aurika Logo"
+          width={250}
+          className="mb-4"
+          priority
+        />
         <h1 className="text-2xl font-bold mb-4">Welcome back, </h1>
 
         <div className="bg-white p-8 rounded-lg w-90 opacity-90 shadow-lg">
@@ -178,7 +184,7 @@ function SignIn() {
             <button
               onClick={handlePinSubmit}
               type="submit"
-              className="prevent-select mt-3 bg-yellow-500 text-lg py-2 rounded-md hover:bg-yellow-400 cursor-pointer  transition duration-200"
+              className="prevent-select mt-3 bg-teal-500 text-lg py-2 rounded-md hover:bg-teal-400 cursor-pointer transition duration-200"
             >
               Sign In
             </button>
