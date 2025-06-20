@@ -151,9 +151,9 @@ function Header() {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="26px"
+                  height="24px"
                   viewBox="0 -960 960 960"
-                  width="26px"
+                  width="24px"
                   fill="#000000"
                 >
                   <path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" />
@@ -185,9 +185,9 @@ function Header() {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="26px"
+                  height="24px"
                   viewBox="0 -960 960 960"
-                  width="26px"
+                  width="24px"
                   fill="#000000"
                 >
                   <path d="M120-80v-800l60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60v800l-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60Zm120-200h480v-80H240v80Zm0-160h480v-80H240v80Zm0-160h480v-80H240v80Zm-40 404h560v-568H200v568Zm0-568v568-568Z" />
