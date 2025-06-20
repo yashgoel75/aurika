@@ -1,16 +1,35 @@
+'use client";';
+
 import "./page.css";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import logo from "@/public/AurikaLogo.png";
 function Header() {
+  const router = useRouter();
+  function handlePortfolioNavigation() {
+    router.push("/Portfolio");
+  }
+  function handleAccountNavigation() {
+    router.push("/Account");
+  }
+  function handleSettingsNavigation() {
+    router.push("/Settings");
+  }
   return (
     <>
       <div className="flex items-center justify-between p-4 bg-gray-100 text-lg text-white">
         <Image src={logo} alt="Aurika Logo" width={200} />
         <div className="flex items-center space-x-4 text-stone-800">
           <ul className="flex space-x-4">
-            <li>Portfolio</li>
-            <li>Account</li>
-            <li>Settings</li>
+            <li>
+              <a onClick={handlePortfolioNavigation}>Portfolio</a>
+            </li>
+            <li>
+              <a onClick={handleAccountNavigation}>Account</a>
+            </li>
+            <li>
+              <a onClick={handleSettingsNavigation}>Settings</a>
+            </li>
             <li>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
