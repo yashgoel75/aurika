@@ -12,7 +12,7 @@ export default function Home() {
   const router = useRouter();
   const account = useAccount();
   function handleDashboardNavigation() {
-    router.push('/Dashboard');
+    router.push('/PinAuth');
   }
   useEffect(() => {
     if (account.isConnected) {
