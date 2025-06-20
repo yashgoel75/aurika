@@ -10,7 +10,14 @@ function Dashboard() {
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const handleCloseDisclaimer = () => {
     setShowDisclaimer(false);
+    localStorage.setItem("disclaimerAcknowledged", "true");
   };
+  useEffect(() => {
+    const disclaimerAcknowledged = localStorage.getItem("disclaimerAcknowledged");
+    if (disclaimerAcknowledged) {
+      setShowDisclaimer(false);
+    }
+  }, []);
   const router = useRouter();
   const account = useAccount();
   useEffect(() => {
