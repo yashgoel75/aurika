@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <>
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-        <Image src={logo} alt="Aurika Logo" width={500} className="mb-4" />
+        <Image src={logo} alt="Aurika Logo" width={500} className="mb-4" priority/>
         <WalletButton wallet="metamask" />
       </div>
     </>
