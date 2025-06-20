@@ -7,3 +7,14 @@ a:hover {
     cursor: pointer;
     border-bottom: 2px solid black;
 }
+.navigationOnMobile {
+    z-index: 1000;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+}
