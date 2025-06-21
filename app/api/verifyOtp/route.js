@@ -29,11 +29,7 @@ export async function GET(request) {
         <p>Best regards,<br>Aurika Team</p>
       `,
     });
-    await fetch(`http://localhost:3000/api/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    });
+    
     return NextResponse.json(
       { message: "Email sent successfully" },
       { status: 200 }

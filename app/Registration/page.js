@@ -190,6 +190,7 @@ function Registration() {
           alert("Error creating user. Please try again.");
         } else {
           console.log("User created successfully:", data.message);
+          fetch(`api/welcomeMail?name=${name}&email=${email}`);
           alert("Account Created Successfully!");
           router.push("/PinAuth");
         }

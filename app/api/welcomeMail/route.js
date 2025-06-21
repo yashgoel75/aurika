@@ -4,12 +4,12 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request) {
-    const email = request.nextUrl.searchParams.get("email");
-    const otp = request.nextUrl.searchParams.get("otp");
+  const name = request.nextUrl.searchParams.get("name");
+  const email = request.nextUrl.searchParams.get("email");
 
-  if (!email || !otp) {
+  if (!email) {
     return NextResponse.json(
-      { error: "Missing email or OTP" },
+      { error: "Missing email" },
       { status: 400 }
     );
   }
@@ -18,22 +18,24 @@ export async function GET(request) {
     const { data } = await resend.emails.send({
       from: "Aurika <connect@yashgoel.me>",
       to: email,
-      subject: "Welcome to Aurika! OTP Verification",
+      subject: "Welcome to Aurika - Your Journey into Digital Gold Starts Now!",
       html: `
       <img src="https://res.cloudinary.com/dqwjvwb8z/image/upload/v1750499026/Aurika_Logo_veyj9z.png" alt="Aurika Logo" style="width: 150px; height: auto; margin-bottom: 20px;">
-        <h1>Welcome to Aurika!</h1>
-        <p>Thank you for registering with Aurika.</p>
-        <h2 style="font-size: 24px; font-weight: bold;">${otp}</h2>
-        <p>This OTP is valid for <strong>10 minutes.</strong></p>
-        <p>If you did not request this, please ignore this email.</p>
-        <p>Best regards,<br>Aurika Team</p>
+      <h1>Hi ${name},</h1>
+      <p>Welcome to <strong>Aurika</strong> – we're thrilled to have you onboard!</p>
+      <p>You’ve just taken the first step toward experiencing a smarter, decentralized way of buying and holding <strong>digital gold</strong> using blockchain technology.</p>
+        <p>Here’s what you can now do:
+        <ul><li>Buy & hold digital gold securely on-chain</li>
+        <li>Track your portfolio in real time
+</li>
+        <li>Enjoy complete control over your assets with your own wallet
+</li></ul>
+        <p>If you have any questions or suggestions, feel free to reach out. We’re constantly evolving — and your feedback matters.</p>
+        <p>Wishing you golden success,
+<br>Team Aurika</p>
       `,
     });
-    await fetch(`http://localhost:3000/api/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    });
+    
     return NextResponse.json(
       { message: "Email sent successfully" },
       { status: 200 }
