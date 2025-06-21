@@ -14,11 +14,15 @@ export default function Home() {
   function handleDashboardNavigation() {
     router.push('/PinAuth');
   }
+  
   useEffect(() => {
-    if (account.isConnected) {
-      handleDashboardNavigation();
-    }
-  }, [account.isConnected]);
+    const timeout = setTimeout(() => {
+      if (account.isConnected) {
+        handleDashboardNavigation();
+      }
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [account.isConnected, router]);
   
   return (
     <>

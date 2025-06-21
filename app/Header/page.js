@@ -20,7 +20,7 @@ function Header() {
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [account.isConnected, router]);
+  }, [account.isConnected]);
   
   const [showNavigationBar, setShowNavigationBar] = useState(false);
 

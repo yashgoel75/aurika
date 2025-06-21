@@ -19,7 +19,7 @@ function SignIn() {
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [account.isConnected, router]);
+  }, [account.isConnected]);
 
   function handleInput(value) {
     return () => {
