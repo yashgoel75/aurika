@@ -23,6 +23,23 @@ function Dashboard() {
   const router = useRouter();
   const account = useAccount();
 
+  const [name, setName] = useState("");
+  useEffect(() => {
+  async function fetchUserData() {
+    const res = await fetch(`/api/users?walletAddress=${account.address}`);
+    console.log(res);
+    if (res.ok) {
+      const data = await res.json();
+      console.log(data.pin);
+      setName(data.name);
+    }
+  }
+
+  if (account?.address) {
+    fetchUserData();
+  }
+}, [account?.address]);
+
 
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
@@ -87,8 +104,11 @@ function Dashboard() {
       ) : null}
       <div className="bg-gray-100 min-h-screen pt-3">
         <div className="bg-gray-100 m-auto w-95/100 relative z-10">
-          <h1 className="text-xl font-bold">Welcome,</h1>
-          <h1 className="text-xl font-bold mb-5">Your Portfolio:</h1>
+          <div className="flex flex-row">
+            <h1 className="text-xl font-bold">Welcome back,&nbsp;</h1> <h1 className="text-xl">{name}</h1>
+            </div>
+            <h1 className="text-xl font-bold mb-5">Your Portfolio:</h1>
+            
           <div className="horizontalRule"></div>
         </div>
       </div>

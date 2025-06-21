@@ -4,14 +4,32 @@ import Header from "../Header/page";
 import "./page.css";
 
 import { useAccount } from "wagmi";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 function Account() {
   const account = useAccount();
   const address = account.address ? account.address : "Loading...";
   const router = useRouter();
-  
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  useEffect(() => {
+    async function fetchUserData() {
+      const res = await fetch(`/api/users?walletAddress=${account.address}`);
+      console.log(res);
+      if (res.ok) {
+        const data = await res.json();
+        console.log(data.pin);
+        setName(data.name);
+        setEmail(data.email);
+      }
+    }
+    if (account?.address) {
+      fetchUserData();
+    }
+  }, [account?.address]);
+
   return (
     <>
       <Header />
@@ -19,10 +37,10 @@ function Account() {
         <h1 className="text-3xl font-bold mb-4">Account</h1>
         <h1 className="text-2xl font-bold mb-2">Account Details</h1>
         <p className="text-lg">
-          <strong>Name:</strong>
+          <strong>Name:&nbsp;</strong>{name}
         </p>
         <p className="text-lg">
-          <strong>Email:</strong>
+          <strong>Email:&nbsp;</strong>{email}
         </p>
         <p className="text-lg mb-2">
           <strong>Wallet Address:</strong> {address}

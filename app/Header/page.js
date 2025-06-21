@@ -21,7 +21,7 @@ function Header() {
 
     return () => clearTimeout(timeout);
   }, [account.isConnected]);
-  
+
   const [showNavigationBar, setShowNavigationBar] = useState(false);
 
   function handleDashboardNavigation() {
@@ -236,7 +236,7 @@ function Header() {
                 &nbsp;Account
               </a>
             </li>
-            <li>
+            <li title="Settings">
               <a
                 className="flex flex-row items-center justify-center"
                 onClick={handleSettingsNavigation}
