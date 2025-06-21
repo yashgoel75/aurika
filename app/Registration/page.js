@@ -37,6 +37,8 @@ function Registration() {
   }, [account.isConnected, account.address, router]);
 
   function handleSendOtpClick() {
+    setSendButtonClicked(true);
+
     const emailInput = document.querySelector('input[type="email"]');
     if (emailInput) {
       const email = emailInput.value;
@@ -48,7 +50,7 @@ function Registration() {
       }
       if (email) {
         const otpGenerated = Math.floor(100000 + Math.random() * 900000);
-        fetch(`/api/send?email=${email}&otp=${otpGenerated}`)
+        fetch(`/api/verifyOtp?email=${email}&otp=${otpGenerated}`)
           .then((response) => response.json())
           .then((data) => {
             if (data.error) {
@@ -56,7 +58,6 @@ function Registration() {
             } else {
               console.log("Email sent successfully:", data.message);
               setOtp(otpGenerated);
-              setSendButtonClicked(true);
               makeotpexpired();
             }
           })
@@ -88,6 +89,7 @@ function Registration() {
       alert("OTP has expired. Please request a new OTP.");
       return;
     }
+    // Welcome Email
     if (otpInput) {
       const enteredOtp = otpInput.value;
       if (enteredOtp === otp.toString()) {
@@ -105,6 +107,7 @@ function Registration() {
   }
 
   function handleRegistration() {
+    //blinking cursor
     const nameInput = document.querySelector('input[type="text"]#nameInput');
     const emailInput = document.querySelector('input[type="email"]#emailInput');
     const passwordInput = document.querySelector(
@@ -187,8 +190,8 @@ function Registration() {
           alert("Error creating user. Please try again.");
         } else {
           console.log("User created successfully:", data.message);
-          alert("Registration successful! Redirecting to dashboard...");
-          router.push("/Dashboard");
+          alert("Account Created Successfully!");
+          router.push("/PinAuth");
         }
       })
       .catch((error) => {
