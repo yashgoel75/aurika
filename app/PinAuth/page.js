@@ -12,9 +12,13 @@ function SignIn() {
   const account = useAccount();
 
   useEffect(() => {
-    if (!account.isConnected) {
-      router.push("/");
-    }
+    const timeout = setTimeout(() => {
+      if (!account.isConnected) {
+        router.push("/");
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
   }, [account.isConnected, router]);
 
   function handleInput(value) {

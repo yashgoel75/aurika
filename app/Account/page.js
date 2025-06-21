@@ -4,9 +4,14 @@ import Header from "../Header/page";
 import "./page.css";
 
 import { useAccount } from "wagmi";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 function Account() {
   const account = useAccount();
   const address = account.address ? account.address : "Loading...";
+  const router = useRouter();
+  
   return (
     <>
       <Header />

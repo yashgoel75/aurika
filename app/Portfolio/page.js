@@ -2,7 +2,15 @@
 
 import Header from "../Header/page"
 
+import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import "./page.css";
+
 function Portfolio() {
+    const router = useRouter();
+    const account = useAccount();
+    
     return (
         <>
             <Header />

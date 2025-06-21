@@ -13,18 +13,16 @@ function Dashboard() {
     localStorage.setItem("disclaimerAcknowledged", "true");
   };
   useEffect(() => {
-    const disclaimerAcknowledged = localStorage.getItem("disclaimerAcknowledged");
+    const disclaimerAcknowledged = localStorage.getItem(
+      "disclaimerAcknowledged"
+    );
     if (disclaimerAcknowledged) {
       setShowDisclaimer(false);
     }
   }, []);
   const router = useRouter();
   const account = useAccount();
-  useEffect(() => {
-    if (!account.isConnected) {
-      router.push("/");
-    }
-  }, [account.isConnected, router]);
+
 
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
@@ -39,7 +37,7 @@ function Dashboard() {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
-  
+
   useEffect(() => {
     if (showDisclaimer) {
       document.body.classList.add("modal-open");

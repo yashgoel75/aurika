@@ -5,9 +5,23 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import logo from "@/public/AurikaLogo.png";
 import { useState } from "react";
-import { set } from "mongoose";
+import { useEffect } from "react";
+import { useAccount } from "wagmi";
+
 function Header() {
   const router = useRouter();
+  const account = useAccount();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!account.isConnected) {
+        router.push("/");
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [account.isConnected, router]);
+  
   const [showNavigationBar, setShowNavigationBar] = useState(false);
 
   function handleDashboardNavigation() {
@@ -34,7 +48,12 @@ function Header() {
         <div className="navigationOnMobile">
           <div className="flex flex-col w-10/10 justify-center p-4 bg-slate-100 shadow-lg rounded-lg text-lg text-stone-800">
             <div className="flex justify-between items-center hover:cursor-pointer">
-              <Image src={logo} alt="Aurika Logo" width={200} onClick={handleDashboardNavigation}/>
+              <Image
+                src={logo}
+                alt="Aurika Logo"
+                width={200}
+                onClick={handleDashboardNavigation}
+              />
               <svg
                 onClick={handleNavigationBar}
                 xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +149,12 @@ function Header() {
       ) : null}
 
       <div className="flex items-center justify-between p-4 bg-gray-100 text-lg text-white">
-        <Image src={logo} alt="Aurika Logo" width={200} onClick={handleDashboardNavigation}/>
+        <Image
+          src={logo}
+          alt="Aurika Logo"
+          width={200}
+          onClick={handleDashboardNavigation}
+        />
         <svg
           onClick={handleNavigationBar}
           xmlns="http://www.w3.org/2000/svg"
