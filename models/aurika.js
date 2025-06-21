@@ -1,6 +1,11 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
+    walletAddress: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     name: {
         type: String,
         required: true,
@@ -15,13 +20,8 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     pin: {
-        type: number,
+        type: Number,
         required: true,
-    },
-    walletAddress: {
-        type: String,
-        required: true,
-        unique: true,
     },
 });
 

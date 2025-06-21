@@ -4,8 +4,8 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET(request) {
-  const email = request.nextUrl.searchParams.get("email");
-  const otp = request.nextUrl.searchParams.get("otp");
+    const email = request.nextUrl.searchParams.get("email");
+    const otp = request.nextUrl.searchParams.get("otp");
 
   if (!email || !otp) {
     return NextResponse.json(
@@ -29,7 +29,11 @@ export async function GET(request) {
         <p>Best regards,<br>Aurika Team</p>
       `,
     });
-
+    await fetch(`http://localhost:3000/api/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
     return NextResponse.json(
       { message: "Email sent successfully" },
       { status: 200 }

@@ -84,6 +84,98 @@ function Registration() {
     }
   }
 
+  function handleRegistration() {
+    const nameInput = document.querySelector('input[type="text"]#nameInput');
+    const emailInput = document.querySelector('input[type="email"]#emailInput');
+    const passwordInput = document.querySelector(
+      'input[type="password"]#passwordInput'
+    );
+    const confirmPasswordInput = document.querySelector(
+      'input[type="password"]#confirmPasswordInput'
+    );
+    const pinInput = document.querySelector('input[type="password"]#pinInput');
+    const confirmPinInput = document.querySelector(
+      'input[type="password"]#confirmPinInput'
+    );
+    if (
+      !nameInput ||
+      !emailInput ||
+      !passwordInput ||
+      !confirmPasswordInput ||
+      !pinInput ||
+      !confirmPinInput
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+    const pin = pinInput.value.trim();
+    const confirmPin = confirmPinInput.value.trim();
+    if (
+      name === "" ||
+      email === "" ||
+      password === "" ||
+      confirmPassword === "" ||
+      pin === "" ||
+      confirmPin === ""
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+    if (pin !== confirmPin) {
+      alert("PINs do not match.");
+      return;
+    }
+    if (pin.length !== 6 || isNaN(pin)) {
+      alert("PIN must be a 6-digit number.");
+      return;
+    }
+    if (!otpVerified) {
+      alert("Please verify your OTP before registering.");
+      return;
+    }
+    const walletAddress = account.address;
+    if (!walletAddress) {
+      alert("Wallet address not found. Please connect your wallet.");
+      return;
+    }
+    const userData = {
+      walletAddress,
+      name,
+      email,
+      password,
+      pin: parseInt(pin, 10),
+    };
+    fetch("/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          console.error("Error creating user:", data.error);
+          alert("Error creating user. Please try again.");
+        } else {
+          console.log("User created successfully:", data.message);
+          alert("Registration successful! Redirecting to dashboard...");
+          router.push("/Dashboard");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred during registration. Please try again.");
+      });
+  }
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (!account.isConnected) {
@@ -123,6 +215,7 @@ function Registration() {
               placeholder="Enter your Name"
               className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              id="nameInput"
             />
             <label className="text-sm font-medium mb-1 form-control">
               Enter your Email
@@ -133,6 +226,7 @@ function Registration() {
                 placeholder="Enter your Email"
                 className="w-70/100 p-2 mb-4 border border-gray-300 rounded-s focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
+                id="emailInput"
               />
               <button
                 className="bg-blue-500 text-white p-2 mb-4 rounded-e hover:bg-blue-600 transition-colors w-30/100 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -190,6 +284,7 @@ function Registration() {
                   placeholder="Create a Password"
                   className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
+                  id="passwordInput"
                 />
               </div>
               <div className="flex flex-col w-full ml-2">
@@ -201,6 +296,7 @@ function Registration() {
                   placeholder="Confirm Password"
                   className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
+                  id="confirmPasswordInput"
                 />
               </div>
             </div>
@@ -214,6 +310,7 @@ function Registration() {
                   placeholder="Create a 6-digit PIN"
                   className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
+                  id="pinInput"
                 />
               </div>
               <div className="flex flex-col w-full ml-2">
@@ -223,6 +320,7 @@ function Registration() {
                   placeholder="Confirm PIN"
                   className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
+                  id="confirmPinInput"
                 />
               </div>
             </div>
@@ -231,7 +329,7 @@ function Registration() {
               className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full"
               onClick={(e) => {
                 e.preventDefault();
-                router.push("/PinAuth");
+                handleRegistration();
               }}
               disabled={!otpVerified}
             >
