@@ -52,9 +52,20 @@ function SignIn() {
     console.log(inputField.value);
   }
 
-  function handlePinSubmit(e) {
+  async function handlePinSubmit(e) {
     e.preventDefault();
-    router.push("/Dashboard");
+    const inputField = document.querySelector('input[type="password"]');
+    const res = await fetch(`/api/users?walletAddress=${account.address}`);
+    console.log(res);
+    if (res.ok) {
+      const data = await res.json();
+      console.log(data.pin);
+      if (data.pin.toString() === inputField.value.toString()) {
+        router.push("/Dashboard");
+      } else {
+        alert("Incorrect PIN");
+      }
+    }
   }
 
   return (

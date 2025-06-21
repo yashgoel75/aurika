@@ -59,6 +59,8 @@ export async function GET(request) {
           ? "Wallet address found"
           : "Wallet address not found",
         exists: !!user,
+        walletAddress: user ? user.walletAddress : null,
+        pin: user ? user.pin : null
       },
       { status: 200 }
     );

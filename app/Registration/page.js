@@ -15,6 +15,26 @@ function Registration() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpError, setOtpError] = useState(false);
   const [otpExpired, setOtpExpired] = useState(false);
+  const [passwordNotMatch, setPasswordNotMatch] = useState(false);
+  const [pinNotMatch, setPinNotMatch] = useState(false);
+
+  useEffect(() => {
+    async function handleAccountNavigation() {
+      console.log("Account is connected:", account.address);
+      const res = await fetch(`/api/users?walletAddress=${account.address}`);
+      const data = await res.json();
+      console.log(res);
+      if (res.ok && data.exists) {
+        router.push("/PinAuth");
+      } else {
+        router.push("/Registration");
+      }
+    }
+
+    if (account.isConnected) {
+      handleAccountNavigation();
+    }
+  }, [account.isConnected, account.address, router]);
 
   function handleSendOtpClick() {
     const emailInput = document.querySelector('input[type="email"]');
@@ -264,12 +284,12 @@ function Registration() {
               </div>
             ) : null}
             {otpVerified && (
-              <div className="font-[segoi-ui] bg-green-400 text-green-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
+              <div className="bg-green-400 text-green-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
                 OTP verification successful
               </div>
             )}
             {otpError && (
-              <div className="font-[segoi-ui] bg-red-400 text-red-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
+              <div className="bg-red-400 text-red-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
                 Invalid OTP
               </div>
             )}
@@ -297,9 +317,27 @@ function Registration() {
                   className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   id="confirmPasswordInput"
+                  onChange={(e) => {
+                    const inputField = e.target;
+                    if (
+                      inputField.value !==
+                      document.querySelector(
+                        'input[type="password"]#passwordInput'
+                      ).value
+                    ) {
+                      setPasswordNotMatch(true);
+                    } else {
+                      setPasswordNotMatch(false);
+                    }
+                  }}
                 />
               </div>
             </div>
+            {passwordNotMatch && (
+              <div className="bg-red-400 text-red-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
+                Passwords do not match
+              </div>
+            )}
             <div className="flex flex-row items-center justify-between mb-4">
               <div className="flex flex-col w-full mr-2">
                 <label className="text-sm font-medium mb-1">
@@ -308,7 +346,7 @@ function Registration() {
                 <input
                   type="password"
                   placeholder="Create a 6-digit PIN"
-                  className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   id="pinInput"
                 />
@@ -318,12 +356,29 @@ function Registration() {
                 <input
                   type="password"
                   placeholder="Confirm PIN"
-                  className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   id="confirmPinInput"
+                  onChange={(e) => {
+                    const inputField = e.target;
+                    if (
+                      inputField.value !==
+                      document.querySelector('input[type="password"]#pinInput')
+                        .value
+                    ) {
+                      setPinNotMatch(true);
+                    } else {
+                      setPinNotMatch(false);
+                    }
+                  }}
                 />
               </div>
             </div>
+            {pinNotMatch && (
+              <div className="bg-red-400 text-red-900 flex justify-center mb-4 hover:cursor-pointer w-full p-1 rounded m-auto">
+                PINs do not match
+              </div>
+            )}
             <button
               type="submit"
               className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full"

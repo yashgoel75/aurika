@@ -21,7 +21,7 @@ export default function Home() {
     const data = await res.json();
     console.log(res);
     if (res.ok && data.exists) {
-      router.push("/Dashboard");
+      router.push("/PinAuth");
     } else {
       router.push("/Registration");
     }
