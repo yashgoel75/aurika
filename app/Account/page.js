@@ -37,16 +37,19 @@ function Account() {
         <h1 className="text-3xl font-bold mb-4">Account</h1>
         <h1 className="text-2xl font-bold mb-2">Account Details</h1>
         <p className="text-lg">
-          <strong>Name:&nbsp;</strong>{name}
+          <strong>Name:&nbsp;</strong>
+          {name}
         </p>
         <p className="text-lg">
-          <strong>Email:&nbsp;</strong>{email}
+          <strong>Email:&nbsp;</strong>
+          {email}
         </p>
         <p className="text-lg mb-2">
           <strong>Wallet Address:</strong> {address}
         </p>
         <div className="horizontalRule"></div>
         <h1 className="text-2xl font-bold mt-2 mb-2">Security</h1>
+        <p className="text-lg">Change Password</p>
         <p className="text-lg">Change Login PIN</p>
       </div>
     </>
