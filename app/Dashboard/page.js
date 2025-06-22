@@ -101,6 +101,19 @@ function Dashboard() {
     height: "auto",
   };
 
+  const [buyButton, setBuyButton] = useState(true);
+  const [sellButton, setSellButton] = useState(false);
+
+  function handleBuyButton() {
+    setSellButton(false);
+    setBuyButton(true);
+  }
+
+  function handleSendButton() {
+    setBuyButton(false);
+    setSellButton(true);
+  }
+
   return (
     <>
       <div className="bg-gray-100">
@@ -138,6 +151,7 @@ function Dashboard() {
             </div>
           </div>
         ) : null}
+
         <div className="bg-gray-100 pt-3">
           <div className="bg-gray-100 m-auto w-95/100 relative z-10">
             <div className="flex flex-row">
@@ -152,7 +166,10 @@ function Dashboard() {
             <div className="horizontalRule"></div>
           </div>
         </div>
-        <div className="flex p-4 justify-center bg-gray-100">
+        {/* <div className="account-container pl-8 pt-8 bg-gray-100">
+          <h1 className="text-[24px] font-onest font-bold mb-2">Gold Locker</h1>
+          </div> */}
+        <div className="flex p-4 pt-8 justify-center bg-gray-100">
           <div className="flex items-center w-95/100 m-auto">
             <Image
               src={EthereumCoin}
@@ -161,19 +178,19 @@ function Dashboard() {
               priority
             ></Image>
             <div className="flex justify-center items-center w-40/100">
-              <div className="w-full flex justify-center items-center">
-                <h1 className="m-3 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full">
+              <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full   ">
                   GWEI
                 </h1>
                 <input
-                  className="rounded-full w-60/100 border border-2 p-1 mr-5 pl-3"
+                  className="mr-1 rounded-full w-60/100 border bg-stone-50 border-2 p-1 pl-3"
                   placeholder="1"
                 ></input>
               </div>
             </div>
 
             <div className="w-20/100 flex justify-center items-center">
-              <div className="hover:bg-neutral-50 cursor-pointer rounded-full p-3">
+              <div className="shadow-md bg-white hover: cursor-pointer rounded-full p-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   height="40"
@@ -187,13 +204,13 @@ function Dashboard() {
             </div>
 
             <div className="w-40/100 flex justify-center items-center font-onest">
-              <div className="flex justify-center items-center w-full">
+              <div className="flex items-center w-full mr-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
                 <input
-                  className="rounded-full w-60/100 border-2 p-1 ml-5 pl-3"
+                  className="ml-1 rounded-full w-60/100 border-2 p-1 pl-3 bg-stone-50"
                   placeholder="1"
                   defaultValue={1}
                 ></input>
-                <h1 className="m-3 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full">
+                <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full hover:cursor-default">
                   GOLD
                 </h1>
               </div>
@@ -207,6 +224,32 @@ function Dashboard() {
             ></Image>
           </div>
         </div>
+        <div className="flex justify-center">
+          <button
+            onClick={handleBuyButton}
+            className="pt-1 pb-1 pl-2 pr-2 w-20 rounded-md bg-blue-300 text-lg m-2 mt-8 hover:bg-blue-200 cursor-pointer transition-all duration-200 ease-in-out"
+          >
+            Buy
+          </button>
+          <button
+            onClick={handleSendButton}
+            className="pt-1 pb-1 pl-2 pr-2 w-20 rounded-md bg-blue-300 text-lg m-2 mt-8 hover:bg-blue-200 cursor-pointer transition-all duration-200 ease-in-out"
+          >
+            Sell
+          </button>
+        </div>
+        {buyButton ? (
+          <div className="w-9/10 mt-4 m-auto bg-white shadow-lg rounded-lg">
+            <div className="pl-3 pt-2 pb-2">
+              <h1 className="text-xl font-onest">Buying from Aurika</h1>
+            </div>
+          </div>
+        ) : <div className="w-9/10 mt-4 m-auto bg-white shadow-lg rounded-lg">
+            <div className="pl-3 pt-2 pb-2">
+              <h1 className="text-xl font-onest">Selling from Aurika</h1>
+            </div>
+          </div>}
+
         <div className="min-h-screen bg-gray-100"></div>
       </div>
     </>
