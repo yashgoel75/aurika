@@ -94,6 +94,13 @@ function Dashboard() {
     };
   }, [showDisclaimer]);
 
+  const imageStyle = {
+    borderRadius: "50%",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
+    width: "175px",
+    height: "auto",
+  };
+
   return (
     <>
       <div className="bg-gray-100">
@@ -148,11 +155,11 @@ function Dashboard() {
         <div className="flex p-4 justify-center bg-gray-100">
           <div className="flex items-center w-95/100 m-auto">
             <Image
-                src={EthereumCoin}
-                width={175}
-                alt="Aurika"
-                priority
-              ></Image>
+              src={EthereumCoin}
+              style={imageStyle}
+              alt="Ethereum Coin"
+              priority
+            ></Image>
             <div className="flex justify-center items-center w-40/100">
               <div className="w-full flex justify-center items-center">
                 <h1 className="m-3 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full">
@@ -162,11 +169,9 @@ function Dashboard() {
                   className="rounded-full w-60/100 border border-2 p-1 mr-5 pl-3"
                   placeholder="1"
                 ></input>
-                
               </div>
-              
             </div>
-            
+
             <div className="w-20/100 flex justify-center items-center">
               <div className="hover:bg-neutral-50 cursor-pointer rounded-full p-3">
                 <svg
@@ -180,9 +185,8 @@ function Dashboard() {
                 </svg>
               </div>
             </div>
-            
+
             <div className="w-40/100 flex justify-center items-center font-onest">
-              
               <div className="flex justify-center items-center w-full">
                 <input
                   className="rounded-full w-60/100 border-2 p-1 ml-5 pl-3"
@@ -196,12 +200,11 @@ function Dashboard() {
             </div>
 
             <Image
-                src={AurikaGoldCoin}
-                width={175}
-                alt="Aurika"
-                priority
+              src={AurikaGoldCoin}
+              style={imageStyle}
+              alt="Aurika"
+              priority
             ></Image>
-            
           </div>
         </div>
         <div className="min-h-screen bg-gray-100"></div>
