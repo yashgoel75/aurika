@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 
 import { useContractRead } from "wagmi";
 import { aurikaAbi } from "../constants/aurikaAbi";
+import { getPriceAbi } from "../constants/getPriceAbi";
 import { BigNumber } from "ethers";
 
 import Image from "next/image";
@@ -15,6 +16,7 @@ import "./page.css";
 
 function Dashboard() {
   const AURIKA_ADDRESS = "0xee0dBD54067691056c51012E71a2cF59EBaAE094";
+  const GETPRICE_ADDRESS = "0x6d2C92EbCCcF6347EbeDef5e8961569914c3e091";
 
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const handleCloseDisclaimer = () => {
@@ -30,16 +32,36 @@ function Dashboard() {
     }
   }, []);
   const router = useRouter();
-  const account = useAccount();
+  const { address, isConnected } = useAccount();
 
   const { data: userData, isLoading } = useContractRead({
     address: AURIKA_ADDRESS,
     abi: aurikaAbi,
     functionName: "users",
-    args: [account.address],
+    args: [address],
   });
-  const [portfolioValue, setPortfolioValue] = useState(0);
-  const [grams, setGrams] = useState(0);
+
+  const { data: ethUsdPriceRaw } = useContractRead({
+    address: GETPRICE_ADDRESS,
+    abi: getPriceAbi,
+    functionName: "getEthUsd",
+  });
+
+  const { data: xauUsdPriceRaw } = useContractRead({
+    address: GETPRICE_ADDRESS,
+    abi: getPriceAbi,
+    functionName: "getXauUsd",
+  });
+
+  console.log(ethUsdPriceRaw);
+  console.log(xauUsdPriceRaw);
+
+  const [portfolioValue, setPortfolioValue] = useState("0");
+  const [grams, setGrams] = useState("0");
+
+  const [ethUsdPrice, setEthUsdPrice] = useState("0");
+  const [xauUsdPrice, setXauUsdPrice] = useState("0");
+
   useEffect(() => {
     if (userData && Array.isArray(userData)) {
       const invested = userData[0].toString();
@@ -51,22 +73,34 @@ function Dashboard() {
     }
   }, [userData]);
 
+  useEffect(() => {
+    if (ethUsdPriceRaw) {
+      setEthUsdPrice(Number(ethUsdPriceRaw) / 1e8); // or 1e18 based on your contract's decimal
+    }
+
+    if (xauUsdPriceRaw) {
+      setXauUsdPrice(Number(xauUsdPriceRaw) / 1e8);
+    }
+  }, [ethUsdPriceRaw, xauUsdPriceRaw]);
+
+  console.log("ETH/USD Price: ", ethUsdPrice);
+  console.log("XAU/USD Price: ", xauUsdPrice);
+
   const [name, setName] = useState("");
+
   useEffect(() => {
     async function fetchUserData() {
-      const res = await fetch(`/api/users?walletAddress=${account.address}`);
-      console.log(res);
+      const res = await fetch(`/api/users?walletAddress=${address}`);
       if (res.ok) {
         const data = await res.json();
-        console.log(data.pin);
         setName(data.name);
       }
     }
 
-    if (account?.address) {
+    if (isConnected && address) {
       fetchUserData();
     }
-  }, [account?.address]);
+  }, [address, isConnected]);
 
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
@@ -113,6 +147,187 @@ function Dashboard() {
     setBuyButton(false);
     setSellButton(true);
   }
+
+  useEffect(() => {
+    const inputs = document.querySelectorAll("input[type=number]");
+    const preventScroll = (e) => e.preventDefault();
+
+    inputs.forEach((input) => input.addEventListener("wheel", preventScroll));
+
+    return () => {
+      inputs.forEach((input) =>
+        input.removeEventListener("wheel", preventScroll)
+      );
+    };
+  }, []);
+
+  const [ethAmount, setEthAmount] = useState("0.05");
+  const [ethUnitType, setEthUnitType] = useState("ETH");
+  const [goldUnitType, setGoldUnitType] = useState("GRAM");
+  const [convertedGold, setConvertedGold] = useState("");
+
+  useEffect(() => {
+    if (!ethAmount || !ethUsdPrice || !xauUsdPrice) {
+      setConvertedGold("");
+      return;
+    }
+
+    let ethInBase;
+    switch (ethUnitType) {
+      case "WEI":
+        ethInBase = Number(ethAmount) / 1e18;
+        break;
+      case "GWEI":
+        ethInBase = Number(ethAmount) / 1e9;
+        break;
+      case "ETH":
+      default:
+        ethInBase = Number(ethAmount);
+    }
+
+    const usdValue = ethInBase * ethUsdPrice;
+
+    const xauPerGram = xauUsdPrice / 31.1035;
+    const goldInGram = usdValue / xauPerGram;
+
+    const finalGoldValue =
+      goldUnitType === "MG"
+        ? (goldInGram * 1000).toFixed(3)
+        : goldInGram.toFixed(6);
+
+    setConvertedGold(finalGoldValue);
+  }, [ethAmount, ethUnitType, goldUnitType, ethUsdPrice, xauUsdPrice]);
+
+  const [ethAmounttoBuy, setEthAmounttoBuy] = useState("0.05");
+  const [ethUnitTypetoBuy, setEthUnitTypetoBuy] = useState("ETH");
+  const [goldUnitTypetoBuy, setGoldUnitTypetoBuy] = useState("MG");
+  const [convertedGoldtoBuy, setConvertedGoldtoBuy] = useState("");
+
+  useEffect(() => {
+    if (!ethAmounttoBuy || !ethUsdPrice || !xauUsdPrice) {
+      setConvertedGoldtoBuy("");
+      return;
+    }
+
+    let ethInBase;
+    switch (ethUnitTypetoBuy) {
+      case "WEI":
+        ethInBase = Number(ethAmounttoBuy) / 1e18;
+        break;
+      case "GWEI":
+        ethInBase = Number(ethAmounttoBuy) / 1e9;
+        break;
+      case "ETH":
+      default:
+        ethInBase = Number(ethAmounttoBuy);
+    }
+
+    const usdValuetoBuy = ethInBase * ethUsdPrice;
+
+    const xauPerGram = xauUsdPrice / 31.1035;
+    const goldInGram = usdValuetoBuy / xauPerGram;
+
+    const finalGoldValuetoBuy =
+      goldUnitTypetoBuy === "MG"
+        ? (goldInGram * 1000).toFixed(3)
+        : goldInGram.toFixed(6);
+
+    setConvertedGoldtoBuy(finalGoldValuetoBuy);
+  }, [
+    ethAmounttoBuy,
+    ethUnitTypetoBuy,
+    goldUnitTypetoBuy,
+    ethUsdPrice,
+    xauUsdPrice,
+  ]);
+
+  const [goldAmount, setGoldAmount] = useState("1");
+  const [convertedEth, setConvertedEth] = useState("");
+  const [goldToEthUnitType, setGoldToEthUnitType] = useState("GM"); // or "MG"
+  const [ethOutputUnitType, setEthOutputUnitType] = useState("ETH"); // or "GWEI", "WEI"
+
+  useEffect(() => {
+    if (!goldAmount || !ethUsdPrice || !xauUsdPrice) {
+      setConvertedEth("");
+      return;
+    }
+
+    const xauPerGram = xauUsdPrice / 31.1035;
+
+    const goldInGrams =
+      goldToEthUnitType === "MG"
+        ? Number(goldAmount) / 1000
+        : Number(goldAmount);
+
+    const usdValue = goldInGrams * xauPerGram;
+
+    const ethValue = usdValue / ethUsdPrice;
+
+    let finalEth;
+    switch (ethOutputUnitType) {
+      case "WEI":
+        finalEth = ethValue * 1e18;
+        break;
+      case "GWEI":
+        finalEth = ethValue * 1e9;
+        break;
+      case "ETH":
+      default:
+        finalEth = ethValue;
+    }
+
+    setConvertedEth(finalEth.toFixed(8));
+  }, [
+    goldAmount,
+    goldToEthUnitType,
+    ethOutputUnitType,
+    ethUsdPrice,
+    xauUsdPrice,
+  ]);
+
+  const [goldAmounttoSell, setGoldAmounttoSell] = useState("1");
+  const [convertedEthtoSell, setConvertedEthtoSell] = useState("");
+  const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
+  const [ethOutputUnitTypetoSell, setEthOutputUnitTypetoSell] = useState("ETH"); // or "GWEI", "WEI"
+
+  useEffect(() => {
+    if (!goldAmounttoSell || !ethUsdPrice || !xauUsdPrice) {
+      setConvertedEthtoSell("");
+      return;
+    }
+
+    const xauPerGram = xauUsdPrice / 31.1035;
+
+    const goldInGramstoSell =
+      goldToEthUnitTypetoSell === "MG"
+        ? Number(goldAmounttoSell) / 1000
+        : Number(goldAmounttoSell);
+
+    const usdValue = goldInGramstoSell * xauPerGram;
+
+    const ethValue = usdValue / ethUsdPrice;
+
+    let finalEth;
+    switch (ethOutputUnitTypetoSell) {
+      case "WEI":
+        finalEth = ethValue * 1e18;
+        break;
+      case "GWEI":
+        finalEth = ethValue * 1e9;
+        break;
+      case "ETH":
+      default:
+        finalEth = ethValue;
+    }
+
+    setConvertedEthtoSell(finalEth.toFixed(8));
+  }, [
+    goldAmounttoSell,
+    goldToEthUnitTypetoSell,
+    ethOutputUnitTypetoSell,
+    ethUsdPrice,
+    xauUsdPrice,
+  ]);
 
   return (
     <>
@@ -179,13 +394,25 @@ function Dashboard() {
             ></Image>
             <div className="flex justify-center items-center w-40/100">
               <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
-                <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full   ">
-                  GWEI
+                <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full">
+                  <select
+                    id="ethUnit"
+                    className="border-none outline-none focus:ring-0"
+                    value={ethUnitType}
+                    onChange={(e) => setEthUnitType(e.target.value)}
+                  >
+                    <option>WEI</option>
+                    <option>GWEI</option>
+                    <option>ETH</option>
+                  </select>
                 </h1>
                 <input
                   className="mr-1 rounded-full w-60/100 border bg-stone-50 border-2 p-1 pl-3"
                   placeholder="1"
-                ></input>
+                  type="number"
+                  value={ethAmount}
+                  onChange={(e) => setEthAmount(e.target.value)}
+                />
               </div>
             </div>
 
@@ -207,11 +434,20 @@ function Dashboard() {
               <div className="flex items-center w-full mr-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
                 <input
                   className="ml-1 rounded-full w-60/100 border-2 p-1 pl-3 bg-stone-50"
-                  placeholder="1"
-                  defaultValue={1}
-                ></input>
+                  placeholder={0}
+                  value={convertedGold}
+                  disabled
+                />
                 <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full hover:cursor-default">
-                  GOLD
+                  <select
+                    id="goldUnit"
+                    className="border-none outline-none focus:ring-0"
+                    value={goldUnitType}
+                    onChange={(e) => setGoldUnitType(e.target.value)}
+                  >
+                    <option>GRAM</option>
+                    <option>MG</option>
+                  </select>
                 </h1>
               </div>
             </div>
@@ -257,18 +493,31 @@ function Dashboard() {
                     type="number"
                     placeholder="0"
                     className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                    value={ethAmounttoBuy}
+                    onChange={(e) => setEthAmounttoBuy(e.target.value)}
                   />
                   <select
                     id="currency"
                     className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    value={ethUnitTypetoBuy}
+                    onChange={(e) => setEthUnitTypetoBuy(e.target.value)}
                   >
                     <option>WEI</option>
                     <option>GWEI</option>
                     <option>ETH</option>
                   </select>
                 </div>
+                <div className="flex mt-1 text-gray-600">
+                  <p>
+                    {convertedGoldtoBuy
+                      ? Number(convertedGoldtoBuy).toFixed(2)
+                      : "0.00"}
+                    &nbsp;mg
+                  </p>
+                </div>
                 <div className="flex justify-center py-3 text-gray-600">
-                  Price:
+                  <strong>Price:&nbsp;</strong> ETH&nbsp;
+                  {Number(convertedEth).toFixed(2)}/gm
                 </div>
                 <div className="flex justify-center text-gray-600">
                   <button className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition">
@@ -297,8 +546,11 @@ function Dashboard() {
                     type="number"
                     placeholder="0"
                     className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                    onChange={(e) => setGoldAmounttoSell(e.target.value)}
                   />
                   <select
+                    value={goldToEthUnitTypetoSell}
+                    onChange={(e) => setGoldToEthUnitTypetoSell(e.target.value)}
                     id="currency"
                     className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
                   >
@@ -306,9 +558,17 @@ function Dashboard() {
                     <option>GM</option>
                   </select>
                 </div>
+                <div className="flex mt-1 text-gray-600">
+                  <p>{Number(convertedEthtoSell).toFixed(6)}&nbsp;ETH</p>
+                </div>
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
-                  <p>Selling Price:</p>
-                  <p>Current Balance: {grams}&nbsp;grams</p>
+                  <p>
+                    <strong>Selling Price:&nbsp;</strong>ETH&nbsp;
+                    {Number(convertedEth).toFixed(2)}/gm
+                  </p>
+                  <p>
+                    <strong>Current Balance:</strong>&nbsp;{grams}&nbsp;grams
+                  </p>
                 </div>
                 <div className="flex justify-center text-gray-600">
                   <button className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition">
