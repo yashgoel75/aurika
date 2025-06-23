@@ -1,13 +1,18 @@
 "use client";
-import { useAccount } from "wagmi";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
 
-import { useContractRead } from "wagmi";
+//react/next
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+//wagmi
 import { aurikaAbi } from "../constants/aurikaAbi";
 import { getPriceAbi } from "../constants/getPriceAbi";
 import { BigNumber } from "ethers";
 
+import { useAccount } from "wagmi";
+import { useContractRead } from "wagmi";
+
+//local imports
 import Image from "next/image";
 import Header from "../Header/page";
 import AurikaGoldCoin from "@/public/AurikaGoldCoin.png";
@@ -15,92 +20,51 @@ import EthereumCoin from "@/public/EthereumCoin.png";
 import "./page.css";
 
 function Dashboard() {
+  //styles
+  const imageStyle = {
+    borderRadius: "50%",
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
+    width: "140px",
+    height: "auto",
+  };
+
+  //constants/variables
+  const router = useRouter();
   const AURIKA_ADDRESS = "0xee0dBD54067691056c51012E71a2cF59EBaAE094";
   const GETPRICE_ADDRESS = "0x6d2C92EbCCcF6347EbeDef5e8961569914c3e091";
-
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
-  const handleCloseDisclaimer = () => {
-    setShowDisclaimer(false);
-    localStorage.setItem("disclaimerAcknowledged", "true");
-  };
-  useEffect(() => {
-    const disclaimerAcknowledged = localStorage.getItem(
-      "disclaimerAcknowledged"
-    );
-    if (disclaimerAcknowledged) {
-      setShowDisclaimer(false);
-    }
-  }, []);
-  const router = useRouter();
   const { address, isConnected } = useAccount();
 
-  const { data: userData, isLoading } = useContractRead({
-    address: AURIKA_ADDRESS,
-    abi: aurikaAbi,
-    functionName: "users",
-    args: [address],
-  });
-
-  const { data: ethUsdPriceRaw } = useContractRead({
-    address: GETPRICE_ADDRESS,
-    abi: getPriceAbi,
-    functionName: "getEthUsd",
-  });
-
-  const { data: xauUsdPriceRaw } = useContractRead({
-    address: GETPRICE_ADDRESS,
-    abi: getPriceAbi,
-    functionName: "getXauUsd",
-  });
-
-  console.log(ethUsdPriceRaw);
-  console.log(xauUsdPriceRaw);
-
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [portfolioValue, setPortfolioValue] = useState("0");
-  const [grams, setGrams] = useState("0");
 
+  const [grams, setGrams] = useState("0");
   const [ethUsdPrice, setEthUsdPrice] = useState("0");
   const [xauUsdPrice, setXauUsdPrice] = useState("0");
-
-  useEffect(() => {
-    if (userData && Array.isArray(userData)) {
-      const invested = userData[0].toString();
-      const grams = userData[1].toString();
-      setPortfolioValue(invested);
-      setGrams(grams);
-      console.log("Invested:", invested);
-      console.log("Grams:", grams);
-    }
-  }, [userData]);
-
-  useEffect(() => {
-    if (ethUsdPriceRaw) {
-      setEthUsdPrice(Number(ethUsdPriceRaw) / 1e8); // or 1e18 based on your contract's decimal
-    }
-
-    if (xauUsdPriceRaw) {
-      setXauUsdPrice(Number(xauUsdPriceRaw) / 1e8);
-    }
-  }, [ethUsdPriceRaw, xauUsdPriceRaw]);
-
-  console.log("ETH/USD Price: ", ethUsdPrice);
-  console.log("XAU/USD Price: ", xauUsdPrice);
-
   const [name, setName] = useState("");
+  const [buyButton, setBuyButton] = useState(true);
+  const [sellButton, setSellButton] = useState(false);
 
-  useEffect(() => {
-    async function fetchUserData() {
-      const res = await fetch(`/api/users?walletAddress=${address}`);
-      if (res.ok) {
-        const data = await res.json();
-        setName(data.name);
-      }
-    }
+  const [ethAmount, setEthAmount] = useState("0.05");
+  const [ethUnitType, setEthUnitType] = useState("ETH");
+  const [goldUnitType, setGoldUnitType] = useState("GRAM");
+  const [convertedGold, setConvertedGold] = useState("");
 
-    if (isConnected && address) {
-      fetchUserData();
-    }
-  }, [address, isConnected]);
+  const [ethAmounttoBuy, setEthAmounttoBuy] = useState("0.05");
+  const [ethUnitTypetoBuy, setEthUnitTypetoBuy] = useState("ETH");
+  const [goldUnitTypetoBuy, setGoldUnitTypetoBuy] = useState("MG");
+  const [convertedGoldtoBuy, setConvertedGoldtoBuy] = useState("");
+
+  const [goldAmount, setGoldAmount] = useState("1");
+  const [convertedEth, setConvertedEth] = useState("");
+  const [goldToEthUnitType, setGoldToEthUnitType] = useState("GM"); // or "MG"
+  const [ethOutputUnitType, setEthOutputUnitType] = useState("ETH"); // or "GWEI", "WEI"
+
+  const [goldAmounttoSell, setGoldAmounttoSell] = useState("1");
+  const [convertedEthtoSell, setConvertedEthtoSell] = useState("");
+  const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
+  const [ethOutputUnitTypetoSell, setEthOutputUnitTypetoSell] = useState("ETH"); // or "GWEI", "WEI"
+
+  //useEffect
 
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
@@ -128,26 +92,6 @@ function Dashboard() {
     };
   }, [showDisclaimer]);
 
-  const imageStyle = {
-    borderRadius: "50%",
-    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
-    width: "140px",
-    height: "auto",
-  };
-
-  const [buyButton, setBuyButton] = useState(true);
-  const [sellButton, setSellButton] = useState(false);
-
-  function handleBuyButton() {
-    setSellButton(false);
-    setBuyButton(true);
-  }
-
-  function handleSendButton() {
-    setBuyButton(false);
-    setSellButton(true);
-  }
-
   useEffect(() => {
     const inputs = document.querySelectorAll("input[type=number]");
     const preventScroll = (e) => e.preventDefault();
@@ -161,10 +105,52 @@ function Dashboard() {
     };
   }, []);
 
-  const [ethAmount, setEthAmount] = useState("0.05");
-  const [ethUnitType, setEthUnitType] = useState("ETH");
-  const [goldUnitType, setGoldUnitType] = useState("GRAM");
-  const [convertedGold, setConvertedGold] = useState("");
+  useEffect(() => {
+    async function fetchUserData() {
+      const res = await fetch(`/api/users?walletAddress=${address}`);
+      if (res.ok) {
+        const data = await res.json();
+        setName(data.name);
+      }
+    }
+
+    if (isConnected && address) {
+      fetchUserData();
+    }
+  }, [address, isConnected]);
+
+  useEffect(() => {
+    const disclaimerAcknowledged = localStorage.getItem(
+      "disclaimerAcknowledged"
+    );
+    if (disclaimerAcknowledged) {
+      setShowDisclaimer(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userData && Array.isArray(userData)) {
+      const invested = userData[0].toString();
+      const grams = userData[1].toString();
+      setPortfolioValue(invested);
+      setGrams(grams);
+      console.log("Invested:", invested);
+      console.log("Grams:", grams);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (ethUsdPriceRaw) {
+      setEthUsdPrice(Number(ethUsdPriceRaw) / 1e8); // or 1e18 based on your contract's decimal
+    }
+
+    if (xauUsdPriceRaw) {
+      setXauUsdPrice(Number(xauUsdPriceRaw) / 1e8);
+    }
+  }, [ethUsdPriceRaw, xauUsdPriceRaw]);
+
+  console.log("ETH/USD Price: ", ethUsdPrice);
+  console.log("XAU/USD Price: ", xauUsdPrice);
 
   useEffect(() => {
     if (!ethAmount || !ethUsdPrice || !xauUsdPrice) {
@@ -197,11 +183,6 @@ function Dashboard() {
 
     setConvertedGold(finalGoldValue);
   }, [ethAmount, ethUnitType, goldUnitType, ethUsdPrice, xauUsdPrice]);
-
-  const [ethAmounttoBuy, setEthAmounttoBuy] = useState("0.05");
-  const [ethUnitTypetoBuy, setEthUnitTypetoBuy] = useState("ETH");
-  const [goldUnitTypetoBuy, setGoldUnitTypetoBuy] = useState("MG");
-  const [convertedGoldtoBuy, setConvertedGoldtoBuy] = useState("");
 
   useEffect(() => {
     if (!ethAmounttoBuy || !ethUsdPrice || !xauUsdPrice) {
@@ -240,11 +221,6 @@ function Dashboard() {
     ethUsdPrice,
     xauUsdPrice,
   ]);
-
-  const [goldAmount, setGoldAmount] = useState("1");
-  const [convertedEth, setConvertedEth] = useState("");
-  const [goldToEthUnitType, setGoldToEthUnitType] = useState("GM"); // or "MG"
-  const [ethOutputUnitType, setEthOutputUnitType] = useState("ETH"); // or "GWEI", "WEI"
 
   useEffect(() => {
     if (!goldAmount || !ethUsdPrice || !xauUsdPrice) {
@@ -285,11 +261,6 @@ function Dashboard() {
     xauUsdPrice,
   ]);
 
-  const [goldAmounttoSell, setGoldAmounttoSell] = useState("1");
-  const [convertedEthtoSell, setConvertedEthtoSell] = useState("");
-  const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
-  const [ethOutputUnitTypetoSell, setEthOutputUnitTypetoSell] = useState("ETH"); // or "GWEI", "WEI"
-
   useEffect(() => {
     if (!goldAmounttoSell || !ethUsdPrice || !xauUsdPrice) {
       setConvertedEthtoSell("");
@@ -328,6 +299,46 @@ function Dashboard() {
     ethUsdPrice,
     xauUsdPrice,
   ]);
+
+  //wagmi (contract integration)
+  const { data: userData, isLoading } = useContractRead({
+    address: AURIKA_ADDRESS,
+    abi: aurikaAbi,
+    functionName: "users",
+    args: [address],
+  });
+
+  const { data: ethUsdPriceRaw } = useContractRead({
+    address: GETPRICE_ADDRESS,
+    abi: getPriceAbi,
+    functionName: "getEthUsd",
+  });
+
+  const { data: xauUsdPriceRaw } = useContractRead({
+    address: GETPRICE_ADDRESS,
+    abi: getPriceAbi,
+    functionName: "getXauUsd",
+  });
+
+  console.log(ethUsdPriceRaw);
+  console.log(xauUsdPriceRaw);
+
+  //functions
+
+  const handleCloseDisclaimer = () => {
+    setShowDisclaimer(false);
+    localStorage.setItem("disclaimerAcknowledged", "true");
+  };
+
+  function handleBuyButton() {
+    setSellButton(false);
+    setBuyButton(true);
+  }
+
+  function handleSendButton() {
+    setBuyButton(false);
+    setSellButton(true);
+  }
 
   return (
     <>
@@ -387,6 +398,7 @@ function Dashboard() {
         <div className="flex p-4 pt-8 justify-center bg-gray-100">
           <div className="flex items-center w-95/100 m-auto">
             <Image
+              className="bg-white shadow-lg"
               src={EthereumCoin}
               style={imageStyle}
               alt="Ethereum Coin"
@@ -435,7 +447,7 @@ function Dashboard() {
                 <input
                   className="ml-1 rounded-full w-60/100 border-2 p-1 pl-3 bg-stone-50"
                   placeholder={0}
-                  value={convertedGold}
+                  value={Number(convertedGold).toFixed(2)}
                   disabled
                 />
                 <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full hover:cursor-default">
@@ -453,6 +465,7 @@ function Dashboard() {
             </div>
 
             <Image
+              className="bg-white shadow-lg"
               src={AurikaGoldCoin}
               style={imageStyle}
               alt="Aurika"
@@ -516,7 +529,7 @@ function Dashboard() {
                   </p>
                 </div>
                 <div className="flex justify-center py-3 text-gray-600">
-                  <strong>Price:&nbsp;</strong> ETH&nbsp;
+                  <strong>Buying Price:&nbsp;</strong> ETH&nbsp;
                   {Number(convertedEth).toFixed(2)}/gm
                 </div>
                 <div className="flex justify-center text-gray-600">
