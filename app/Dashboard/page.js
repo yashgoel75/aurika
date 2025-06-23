@@ -97,7 +97,7 @@ function Dashboard() {
   const imageStyle = {
     borderRadius: "50%",
     boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
-    width: "175px",
+    width: "140px",
     height: "auto",
   };
 
@@ -227,27 +227,95 @@ function Dashboard() {
         <div className="flex justify-center">
           <button
             onClick={handleBuyButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-400 text-lg mt-8 ${buyButton ? `bg-violet-400` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-400 text-lg mt-6 ${buyButton ? `bg-violet-400` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Buy
           </button>
           <button
             onClick={handleSendButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-400 text-lg mt-8 ${sellButton ? `bg-violet-400` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-400 text-lg mt-6 ${sellButton ? `bg-violet-400` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Sell
           </button>
         </div>
         {buyButton ? (
-          <div className="w-9/10 mt-4 m-auto bg-white shadow-lg rounded-lg">
-            <div className="pl-3 pt-2 pb-2">
-              <h1 className="text-xl font-onest">Buying from Aurika</h1>
+          <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
+            <div className="px-5 py-4 border-b border-gray-200">
+              <h1 className="text-2xl font-semibold text-gray-800 font-onest">
+                Buying from Aurika
+              </h1>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 px-5 py-5">
+              <div className="w-full">
+                <label className="text-lg font-medium text-gray-700 min-w-max">
+                  SepoliaETH
+                </label>
+
+                <div className="flex mt-1 w-full rounded-lg overflow-hidden border border-violet-500 focus-within:ring-2 focus-within:ring-violet-400">
+                  <input
+                    type="number"
+                    placeholder="0"
+                    className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                  />
+                  <select
+                    id="currency"
+                    className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                  >
+                    <option>WEI</option>
+                    <option>GWEI</option>
+                    <option>ETH</option>
+                  </select>
+                </div>
+                <div className="flex justify-center py-3 text-gray-600">
+                  Price:
+                </div>
+                <div className="flex justify-center text-gray-600">
+                  <button className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition">
+                    Buy
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="w-9/10 mt-4 m-auto bg-white shadow-lg rounded-lg">
-            <div className="pl-3 pt-2 pb-2">
-              <h1 className="text-xl font-onest">Selling from Aurika</h1>
+          <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
+            <div className="px-5 py-4 border-b border-gray-200">
+              <h1 className="text-2xl font-semibold text-gray-800 font-onest">
+                Selling to Aurika
+              </h1>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 px-5 py-5">
+              <div className="w-full">
+                <label className="text-lg font-medium text-gray-700 min-w-max">
+                  Gold
+                </label>
+
+                <div className="mt-1 flex w-full rounded-lg overflow-hidden border border-violet-500 focus-within:ring-2 focus-within:ring-violet-400">
+                  <input
+                    type="number"
+                    placeholder="0"
+                    className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                  />
+                  <select
+                    id="currency"
+                    className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                  >
+                    <option>MG</option>
+                    <option>GM</option>
+                  </select>
+                </div>
+                <div className="flex flex-col items-center justify-center py-3 text-gray-600">
+                  <p>Selling Price:</p>
+                  <p>Current Balance: {grams}&nbsp;grams</p>
+                </div>
+                <div className="flex justify-center text-gray-600">
+                  <button className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition">
+                    Sell
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
