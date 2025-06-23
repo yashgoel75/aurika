@@ -10,7 +10,9 @@ import { getPriceAbi } from "../constants/getPriceAbi";
 import { BigNumber } from "ethers";
 
 import { useAccount } from "wagmi";
+import { useBalance } from "wagmi";
 import { useContractRead } from "wagmi";
+import { useWriteContract } from "wagmi";
 
 //local imports
 import Image from "next/image";
@@ -36,8 +38,9 @@ function Dashboard() {
 
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [portfolioValue, setPortfolioValue] = useState("0");
+  const [portfolioValueUnit, setPortfolioValueUnit] = useState(true);
 
-  const [grams, setGrams] = useState("0");
+  const [quantity, setQuantity] = useState("0");
   const [ethUsdPrice, setEthUsdPrice] = useState("0");
   const [xauUsdPrice, setXauUsdPrice] = useState("0");
   const [name, setName] = useState("");
@@ -63,6 +66,37 @@ function Dashboard() {
   const [convertedEthtoSell, setConvertedEthtoSell] = useState("");
   const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
   const [ethOutputUnitTypetoSell, setEthOutputUnitTypetoSell] = useState("ETH"); // or "GWEI", "WEI"
+
+  const { writeContract } = useWriteContract()
+
+  const { data: balance } = useBalance({
+    address,
+    enabled: !!address,
+    unit: "ether",
+  });
+  console.log(balance);
+  //wagmi (contract integration)
+  const { data: userData, isLoading } = useContractRead({
+    address: AURIKA_ADDRESS,
+    abi: aurikaAbi,
+    functionName: "users",
+    args: [address],
+  });
+
+  const { data: ethUsdPriceRaw } = useContractRead({
+    address: GETPRICE_ADDRESS,
+    abi: getPriceAbi,
+    functionName: "getEthUsd",
+  });
+
+  const { data: xauUsdPriceRaw } = useContractRead({
+    address: GETPRICE_ADDRESS,
+    abi: getPriceAbi,
+    functionName: "getXauUsd",
+  });
+
+  console.log(ethUsdPriceRaw);
+  console.log(xauUsdPriceRaw);
 
   //useEffect
 
@@ -131,13 +165,21 @@ function Dashboard() {
   useEffect(() => {
     if (userData && Array.isArray(userData)) {
       const invested = userData[0].toString();
-      const grams = userData[1].toString();
+      const quantity = userData[1].toString();
       setPortfolioValue(invested);
-      setGrams(grams);
+      setQuantity(quantity);
       console.log("Invested:", invested);
-      console.log("Grams:", grams);
+      console.log("Quantity:", quantity);
     }
   }, [userData]);
+
+  useEffect(() => {
+    if (quantity < 1000) {
+      setPortfolioValueUnit(false);
+    } else {
+      setPortfolioValueUnit(true);
+    }
+  });
 
   useEffect(() => {
     if (ethUsdPriceRaw) {
@@ -300,29 +342,6 @@ function Dashboard() {
     xauUsdPrice,
   ]);
 
-  //wagmi (contract integration)
-  const { data: userData, isLoading } = useContractRead({
-    address: AURIKA_ADDRESS,
-    abi: aurikaAbi,
-    functionName: "users",
-    args: [address],
-  });
-
-  const { data: ethUsdPriceRaw } = useContractRead({
-    address: GETPRICE_ADDRESS,
-    abi: getPriceAbi,
-    functionName: "getEthUsd",
-  });
-
-  const { data: xauUsdPriceRaw } = useContractRead({
-    address: GETPRICE_ADDRESS,
-    abi: getPriceAbi,
-    functionName: "getXauUsd",
-  });
-
-  console.log(ethUsdPriceRaw);
-  console.log(xauUsdPriceRaw);
-
   //functions
 
   const handleCloseDisclaimer = () => {
@@ -335,9 +354,17 @@ function Dashboard() {
     setBuyButton(true);
   }
 
-  function handleSendButton() {
+  function handleSellButton() {
     setBuyButton(false);
     setSellButton(true);
+  }
+
+  function handleBuyOrder() {
+
+  }
+
+  function handleSellOrder() {
+
   }
 
   return (
@@ -386,7 +413,7 @@ function Dashboard() {
             </div>
             <h1 className="text-xl mb-5">
               <strong>Your Portfolio:&nbsp;</strong>
-              {grams}&nbsp;gm
+              {quantity}&nbsp;{portfolioValueUnit ? "gm" : "mg"}
             </h1>
 
             <div className="horizontalRule"></div>
@@ -406,7 +433,7 @@ function Dashboard() {
             ></Image>
             <div className="flex justify-center items-center w-40/100">
               <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
-                <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full">
+                <h1 className="m-1 text-center bg-linear-to-bl from-stone-800 to-neutral-500 text-white p-1 text-lg w-40/100 border rounded-full">
                   <select
                     id="ethUnit"
                     className="border-none outline-none focus:ring-0"
@@ -421,7 +448,7 @@ function Dashboard() {
                 <input
                   className="mr-1 rounded-full w-60/100 border bg-stone-50 border-2 p-1 pl-3"
                   placeholder="1"
-                  type="number"
+                  type="text"
                   value={ethAmount}
                   onChange={(e) => setEthAmount(e.target.value)}
                 />
@@ -450,7 +477,7 @@ function Dashboard() {
                   value={Number(convertedGold).toFixed(2)}
                   disabled
                 />
-                <h1 className="m-1 text-center bg-neutral-800 text-white p-1 text-lg w-40/100 border rounded-full hover:cursor-default">
+                <h1 className="m-1 text-center bg-linear-to-bl from-stone-800 to-neutral-500 text-white p-1 text-lg w-40/100 border rounded-full">
                   <select
                     id="goldUnit"
                     className="border-none outline-none focus:ring-0"
@@ -481,7 +508,7 @@ function Dashboard() {
             Buy
           </button>
           <button
-            onClick={handleSendButton}
+            onClick={handleSellButton}
             className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-400 text-lg mt-6 ${sellButton ? `bg-violet-400` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Sell
@@ -503,12 +530,15 @@ function Dashboard() {
 
                 <div className="flex mt-1 w-full rounded-lg overflow-hidden border border-violet-500 focus-within:ring-2 focus-within:ring-violet-400">
                   <input
-                    type="number"
+                    type="text"
                     placeholder="0"
                     className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
-                    value={ethAmounttoBuy}
-                    onChange={(e) => setEthAmounttoBuy(e.target.value)}
+                    value={
+                      typeof ethAmounttoBuy === "string" ? ethAmounttoBuy : ""
+                    }
+                    onChange={(e) => setEthAmounttoBuy(e.target.value || "")}
                   />
+
                   <select
                     id="currency"
                     className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
@@ -523,15 +553,24 @@ function Dashboard() {
                 <div className="flex mt-1 text-gray-600">
                   <p>
                     {convertedGoldtoBuy
-                      ? Number(convertedGoldtoBuy).toFixed(2)
+                      ? Number(convertedGoldtoBuy) < 1000
+                        ? `${Number(convertedGoldtoBuy).toFixed(2)} mg`
+                        : `${(Number(convertedGoldtoBuy) / 1000).toFixed(2)} gm`
                       : "0.00"}
-                    &nbsp;mg
                   </p>
                 </div>
-                <div className="flex justify-center py-3 text-gray-600">
-                  <strong>Buying Price:&nbsp;</strong> ETH&nbsp;
-                  {Number(convertedEth).toFixed(2)}/gm
+                <div className="flex flex-col items-center justify-center py-3 text-gray-600">
+                  <p>
+                    <strong>Buying Price:&nbsp;</strong>ETH&nbsp;
+                    {Number(convertedEth).toFixed(2)}/gm
+                  </p>
+                  <p>
+                    <strong>Wallet Balance:</strong>&nbsp;
+                    {Number(balance?.formatted).toFixed(2) ?? "0.00"}{" "}
+                    {balance?.symbol ?? ""}
+                  </p>
                 </div>
+
                 <div className="flex justify-center text-gray-600">
                   <button className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition">
                     Buy
@@ -556,13 +595,13 @@ function Dashboard() {
 
                 <div className="mt-1 flex w-full rounded-lg overflow-hidden border border-violet-500 focus-within:ring-2 focus-within:ring-violet-400">
                   <input
-                    type="number"
+                    type="text"
                     placeholder="0"
                     className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
                     onChange={(e) => setGoldAmounttoSell(e.target.value)}
                   />
                   <select
-                    value={goldToEthUnitTypetoSell}
+                    value={goldToEthUnitTypetoSell ?? "GM"}
                     onChange={(e) => setGoldToEthUnitTypetoSell(e.target.value)}
                     id="currency"
                     className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
@@ -572,7 +611,7 @@ function Dashboard() {
                   </select>
                 </div>
                 <div className="flex mt-1 text-gray-600">
-                  <p>{Number(convertedEthtoSell).toFixed(6)}&nbsp;ETH</p>
+                  <p>{Number(convertedEthtoSell).toFixed(3)}&nbsp;ETH</p>
                 </div>
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
@@ -580,7 +619,8 @@ function Dashboard() {
                     {Number(convertedEth).toFixed(2)}/gm
                   </p>
                   <p>
-                    <strong>Current Balance:</strong>&nbsp;{grams}&nbsp;grams
+                    <strong>Current Aurika Balance:</strong>&nbsp;{quantity}&nbsp;
+                    {portfolioValueUnit ? "gm" : "mg"}
                   </p>
                 </div>
                 <div className="flex justify-center text-gray-600">
