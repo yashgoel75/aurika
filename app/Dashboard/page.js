@@ -227,13 +227,13 @@ function Dashboard() {
         <div className="flex justify-center">
           <button
             onClick={handleBuyButton}
-            className="pt-1 pb-1 pl-2 pr-2 w-20 rounded-md bg-blue-300 text-lg m-2 mt-8 hover:bg-blue-200 cursor-pointer transition-all duration-200 ease-in-out"
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-400 text-lg mt-8 ${buyButton ? `bg-violet-400` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Buy
           </button>
           <button
             onClick={handleSendButton}
-            className="pt-1 pb-1 pl-2 pr-2 w-20 rounded-md bg-blue-300 text-lg m-2 mt-8 hover:bg-blue-200 cursor-pointer transition-all duration-200 ease-in-out"
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-400 text-lg mt-8 ${sellButton ? `bg-violet-400` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Sell
           </button>
@@ -244,11 +244,13 @@ function Dashboard() {
               <h1 className="text-xl font-onest">Buying from Aurika</h1>
             </div>
           </div>
-        ) : <div className="w-9/10 mt-4 m-auto bg-white shadow-lg rounded-lg">
+        ) : (
+          <div className="w-9/10 mt-4 m-auto bg-white shadow-lg rounded-lg">
             <div className="pl-3 pt-2 pb-2">
               <h1 className="text-xl font-onest">Selling from Aurika</h1>
             </div>
-          </div>}
+          </div>
+        )}
 
         <div className="min-h-screen bg-gray-100"></div>
       </div>
