@@ -5,14 +5,21 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 //wagmi
+import config from "../../config";
+import { parseUnits } from "ethers";
 import { aurikaAbi } from "../constants/aurikaAbi";
+import { parseEther } from "viem";
+
 import { getPriceAbi } from "../constants/getPriceAbi";
 import { BigNumber } from "ethers";
 
 import { useAccount } from "wagmi";
 import { useBalance } from "wagmi";
 import { useContractRead } from "wagmi";
-import { useWriteContract } from "wagmi";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+
+//viem
+import { publicClient, walletClient, getAccount } from "../../viemConfig";
 
 //local imports
 import Image from "next/image";
@@ -32,7 +39,7 @@ function Dashboard() {
 
   //constants/variables
   const router = useRouter();
-  const AURIKA_ADDRESS = "0xee0dBD54067691056c51012E71a2cF59EBaAE094";
+  const AURIKA_ADDRESS = "0x26B0E24796a52fd8D6D25E165C69f1D3b78Ec859";
   const GETPRICE_ADDRESS = "0x6d2C92EbCCcF6347EbeDef5e8961569914c3e091";
   const { address, isConnected } = useAccount();
 
@@ -67,7 +74,7 @@ function Dashboard() {
   const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
   const [ethOutputUnitTypetoSell, setEthOutputUnitTypetoSell] = useState("ETH"); // or "GWEI", "WEI"
 
-  const { writeContract } = useWriteContract()
+  const { writeContract } = useWriteContract();
 
   const { data: balance } = useBalance({
     address,
@@ -76,7 +83,11 @@ function Dashboard() {
   });
   console.log(balance);
   //wagmi (contract integration)
-  const { data: userData, isLoading } = useContractRead({
+  const {
+    data: userData,
+    isLoading,
+    refetch: refetchUserData,
+  } = useContractRead({
     address: AURIKA_ADDRESS,
     abi: aurikaAbi,
     functionName: "users",
@@ -359,13 +370,148 @@ function Dashboard() {
     setSellButton(true);
   }
 
-  function handleBuyOrder() {
+  function getAmoutInWei() {
+    const totalEth = ethAmounttoBuy;
 
+    if (!totalEth || isNaN(Number(totalEth))) {
+      console.warn("Invalid ETH amount");
+      return BigInt(0);
+    }
+
+    let amountInWei;
+
+    if (ethUnitTypetoBuy === "ETH") {
+      amountInWei = parseUnits(totalEth, 18); // 1 ETH = 10^18 wei
+    } else if (ethUnitTypetoBuy === "GWEI") {
+      amountInWei = parseUnits(totalEth, 9); // 1 GWEI = 10^9 wei
+    } else if (ethUnitTypetoBuy === "WEI") {
+      amountInWei = BigInt(totalEth);
+    } else {
+      console.warn("Unsupported ETH unit type");
+      return BigInt(0);
+    }
+
+    return amountInWei;
   }
 
-  function handleSellOrder() {
+  const [isBuyOrderPending, setIsBuyOrderPending] = useState(false);
+  const [isBuyOrderSuccess, setIsBuyOrderSuccess] = useState(false);
+  const [isBuyOrderFailed, setIsBuyOrderFailed] = useState(false);
+  const [buyOrderHash, setBuyOrderHash] = useState("");
 
-  }
+  const handleBuyOrder = async () => {
+    try {
+      setIsBuyOrderPending(true);
+      setIsBuyOrderFailed(false);
+      setIsBuyOrderSuccess(false);
+      const account = await getAccount();
+      if (!account) throw new Error("No wallet connected");
+      const isBuyOrder = true;
+
+      // Convert gold quantity to milligrams (BigInt)
+      const quantity = BigInt(Math.round(Number(convertedGoldtoBuy))); // in mg
+
+      // Get total ETH amount in wei (BigInt)
+      const amountInWei = getAmoutInWei();
+
+      if (quantity === BigInt(0)) {
+        throw new Error("Quantity cannot be zero");
+      }
+
+      if (amountInWei === BigInt(0)) {
+        throw new Error("ETH amount cannot be zero");
+      }
+
+      // Calculate average price in wei per mg
+      const avgPrice = amountInWei / quantity;
+
+      // Execute the contract write
+      const hash = await walletClient.writeContract({
+        address: AURIKA_ADDRESS,
+        abi: aurikaAbi,
+        functionName: "addOrder",
+        args: [true, quantity, avgPrice],
+        account,
+        value: amountInWei,
+      });
+
+      console.log("Buy order transaction hash:", hash);
+      setBuyOrderHash(hash);
+
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsBuyOrderPending(false);
+      setIsBuyOrderSuccess(true);
+      console.log("Buy order transaction receipt:", receipt);
+
+      // Refetch user data to update portfolio
+      await refetchUserData();
+    } catch (err) {
+      console.error("Buy transaction failed:", err);
+      setIsBuyOrderPending(false);
+      setIsBuyOrderFailed(true);
+    }
+  };
+
+  const [isSellOrderPending, setIsSellOrderPending] = useState(false);
+  const [isSellOrderSuccess, setIsSellOrderSuccess] = useState(false);
+  const [isSellOrderFailed, setIsSellOrderFailed] = useState(false);
+  const [sellOrderHash, setSellOrderHash] = useState("");
+
+  const handleSellOrder = async () => {
+    try {
+      const isBuyOrder = false;
+
+      // Convert gold amount to milligrams (BigInt)
+      const goldInMg =
+        goldToEthUnitTypetoSell === "MG"
+          ? BigInt(Math.round(Number(goldAmounttoSell)))
+          : BigInt(Math.round(Number(goldAmounttoSell) * 1000));
+
+      // Validate quantity
+      if (goldInMg === BigInt(0)) {
+        throw new Error("Gold quantity cannot be zero");
+      }
+
+      // Validate user has enough gold
+      const userGoldBalance = BigInt(quantity || 0);
+      if (goldInMg > userGoldBalance) {
+        throw new Error("Insufficient gold balance");
+      }
+
+      // Calculate ETH value in wei
+      const ethValue = parseUnits(convertedEthtoSell, 18);
+
+      // Calculate average price in wei per mg
+      const avgPrice = ethValue / goldInMg;
+
+      // Execute the contract write
+      const hash = await walletClient.writeContract({
+        address: AURIKA_ADDRESS,
+        abi: aurikaAbi,
+        functionName: "addOrder",
+        args: [false, goldInMg, avgPrice],
+        account,
+      });
+
+      console.log("Sell order transaction hash:", hash);
+      setSellOrderHash(hash);
+
+      // Wait for transaction receipt
+      setIsSellOrderPending(true);
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsSellOrderPending(false);
+      setIsSellOrderSuccess(true);
+      console.log("Sell order transaction receipt:", receipt);
+
+      // Refetch user data to update portfolio
+      await refetchUserData();
+    } catch (err) {
+      console.error("Sell transaction failed:", err);
+      setIsSellOrderPending(false);
+      setIsSellOrderFailed(true);
+    }
+  };
 
   return (
     <>
@@ -413,7 +559,8 @@ function Dashboard() {
             </div>
             <h1 className="text-xl mb-5">
               <strong>Your Portfolio:&nbsp;</strong>
-              {quantity}&nbsp;{portfolioValueUnit ? "gm" : "mg"}
+              {quantity < 1000 ? quantity : quantity / 1000}&nbsp;
+              {portfolioValueUnit ? "gm" : "mg"}
             </h1>
 
             <div className="horizontalRule"></div>
@@ -456,7 +603,7 @@ function Dashboard() {
             </div>
 
             <div className="w-20/100 flex justify-center items-center">
-              <div className="shadow-md bg-white hover: cursor-pointer rounded-full p-3">
+              <div className="shadow-md bg-white hover:bg-stone-50 hover:shadow-lg cursor-pointer rounded-full p-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   height="40"
@@ -474,7 +621,9 @@ function Dashboard() {
                 <input
                   className="ml-1 rounded-full w-60/100 border-2 p-1 pl-3 bg-stone-50"
                   placeholder={0}
-                  value={Number(convertedGold).toFixed(2)}
+                  value={
+                    convertedGold ? Number(convertedGold).toFixed(2) : "0.00"
+                  }
                   disabled
                 />
                 <h1 className="m-1 text-center bg-linear-to-bl from-stone-800 to-neutral-500 text-white p-1 text-lg w-40/100 border rounded-full">
@@ -503,13 +652,13 @@ function Dashboard() {
         <div className="flex justify-center">
           <button
             onClick={handleBuyButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-400 text-lg mt-6 ${buyButton ? `bg-violet-400` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-500 text-lg mt-6 ${buyButton ? `bg-violet-500` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Buy
           </button>
           <button
             onClick={handleSellButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-400 text-lg mt-6 ${sellButton ? `bg-violet-400` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-400`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-500 text-lg mt-6 ${sellButton ? `bg-violet-500` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Sell
           </button>
@@ -534,14 +683,16 @@ function Dashboard() {
                     placeholder="0"
                     className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
                     value={
-                      typeof ethAmounttoBuy === "string" ? ethAmounttoBuy : ""
+                      typeof ethAmounttoBuy === "string"
+                        ? ethAmounttoBuy
+                        : "0.00"
                     }
                     onChange={(e) => setEthAmounttoBuy(e.target.value || "")}
                   />
 
                   <select
                     id="currency"
-                    className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    className="bg-violet-500 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
                     value={ethUnitTypetoBuy}
                     onChange={(e) => setEthUnitTypetoBuy(e.target.value)}
                   >
@@ -550,7 +701,9 @@ function Dashboard() {
                     <option>ETH</option>
                   </select>
                 </div>
-                <div className="flex mt-1 text-gray-600">
+                <div
+                  className={`flex mt-1 ${isBuyOrderPending || isBuyOrderSuccess || isBuyOrderFailed || isSellOrderPending || isSellOrderSuccess || isSellOrderFailed ? "mb-1" : null} text-gray-600`}
+                >
                   <p>
                     {convertedGoldtoBuy
                       ? Number(convertedGoldtoBuy) < 1000
@@ -559,6 +712,66 @@ function Dashboard() {
                       : "0.00"}
                   </p>
                 </div>
+                {isBuyOrderPending ? (
+                  <p className="flex justify-center items-center m-auto m-2 bg-amber-300 text-yellow-600 w-full rounded p-1">
+                    <svg
+                      className="mr-3 size-5 animate-spin"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-45"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-85"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    Transaction Pending...
+                  </p>
+                ) : null}
+
+                {isBuyOrderSuccess ? (
+                  <p className="flex justify-center items-center m-auto m-2 bg-green-500 text-green-900 w-full rounded p-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 -960 960 960"
+                      width="24px"
+                      fill="#314D1C"
+                      className="mr-2"
+                    >
+                      <path d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm34-102 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm-42 142 226-226-56-58-170 170-86-84-56 56 142 142Z" />
+                    </svg>
+                    Transaction Success
+                  </p>
+                ) : null}
+
+                {isBuyOrderFailed ? (
+                  <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-600 w-full rounded p-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 -960 960 960"
+                      width="24px"
+                      fill="#BB271A"
+                      className="mr-2"
+                    >
+                      <path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                    </svg>
+                    Transaction Failed
+                  </p>
+                ) : null}
+
+                {isBuyOrderPending || isBuyOrderSuccess || isBuyOrderFailed ? (
+                  <p className="mt-2">Transaction Hash: {buyOrderHash}</p>
+                ) : null}
+
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
                     <strong>Buying Price:&nbsp;</strong>ETH&nbsp;
@@ -572,7 +785,11 @@ function Dashboard() {
                 </div>
 
                 <div className="flex justify-center text-gray-600">
-                  <button className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition">
+                  <button
+                    onClick={handleBuyOrder}
+                    disabled={isBuyOrderPending}
+                    className={`${isBuyOrderPending ? "cursor-not-allowed" : "hover:cursor-pointer hover:bg-violet-600"} text-lg rounded bg-violet-500 text-white py-1 px-6 transition`}
+                  >
                     Buy
                   </button>
                 </div>
@@ -613,18 +830,86 @@ function Dashboard() {
                 <div className="flex mt-1 text-gray-600">
                   <p>{Number(convertedEthtoSell).toFixed(3)}&nbsp;ETH</p>
                 </div>
+
+                {isSellOrderPending ? (
+                  <p className="flex justify-center items-center m-auto m-2 bg-amber-300 text-yellow-600 w-full rounded p-1">
+                    <svg
+                      className="mr-3 size-5 animate-spin"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-45"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-85"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    Transaction Pending...
+                  </p>
+                ) : null}
+
+                {isSellOrderSuccess ? (
+                  <p className="flex justify-center items-center m-auto m-2 bg-green-500 text-green-900 w-full rounded p-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 -960 960 960"
+                      width="24px"
+                      fill="#314D1C"
+                      className="mr-2"
+                    >
+                      <path d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm34-102 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm-42 142 226-226-56-58-170 170-86-84-56 56 142 142Z" />
+                    </svg>
+                    Transaction Success
+                  </p>
+                ) : null}
+
+                {isSellOrderFailed ? (
+                  <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-600 w-full rounded p-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="24px"
+                      viewBox="0 -960 960 960"
+                      width="24px"
+                      fill="#BB271A"
+                      className="mr-2"
+                    >
+                      <path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                    </svg>
+                    Transaction Failed
+                  </p>
+                ) : null}
+
+                {isSellOrderPending ||
+                isSellOrderSuccess ||
+                isSellOrderFailed ? (
+                  <p className="mt-2">Transaction Hash: {sellOrderHash}</p>
+                ) : null}
+
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
                     <strong>Selling Price:&nbsp;</strong>ETH&nbsp;
                     {Number(convertedEth).toFixed(2)}/gm
                   </p>
                   <p>
-                    <strong>Current Aurika Balance:</strong>&nbsp;{quantity}&nbsp;
+                    <strong>Current Aurika Balance:</strong>&nbsp;
+                    {quantity < 1000 ? quantity : quantity / 1000}
+                    &nbsp;
                     {portfolioValueUnit ? "gm" : "mg"}
                   </p>
                 </div>
                 <div className="flex justify-center text-gray-600">
-                  <button className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition">
+                  <button
+                    onClick={handleSellOrder}
+                    className="text-lg rounded bg-violet-500 text-white py-1 px-6 hover:cursor-pointer hover:bg-violet-600 transition"
+                  >
                     Sell
                   </button>
                 </div>

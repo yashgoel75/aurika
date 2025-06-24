@@ -5,8 +5,6 @@ export const aurikaAbi = [
     type: "function",
     name: "addOrder",
     inputs: [
-      { name: "_date", type: "string", internalType: "string" },
-      { name: "_time", type: "string", internalType: "string" },
       { name: "_isBuyOrder", type: "bool", internalType: "bool" },
       { name: "_quantity", type: "uint256", internalType: "uint256" },
       { name: "_avgPrice", type: "uint256", internalType: "uint256" },
@@ -16,22 +14,20 @@ export const aurikaAbi = [
   },
   {
     type: "function",
-    name: "getOrders",
-    inputs: [],
+    name: "getOrderAt",
+    inputs: [{ name: "index", type: "uint256", internalType: "uint256" }],
     outputs: [
-      {
-        name: "",
-        type: "tuple[]",
-        internalType: "struct Aurika.Order[]",
-        components: [
-          { name: "date", type: "string", internalType: "string" },
-          { name: "time", type: "string", internalType: "string" },
-          { name: "isBuyOrder", type: "bool", internalType: "bool" },
-          { name: "quantity", type: "uint256", internalType: "uint256" },
-          { name: "avgPrice", type: "uint256", internalType: "uint256" },
-        ],
-      },
+      { name: "", type: "bool", internalType: "bool" },
+      { name: "", type: "uint256", internalType: "uint256" },
+      { name: "", type: "uint256", internalType: "uint256" },
     ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getOrderCount",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
   {
