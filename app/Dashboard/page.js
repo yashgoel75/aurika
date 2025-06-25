@@ -575,6 +575,7 @@ function Dashboard() {
       const avgPriceBigInt = ethValue / goldInMg;
 
       // Execute the contract write
+      const walletClient = await getWalletClient();
       const hash = await walletClient.writeContract({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
