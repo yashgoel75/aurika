@@ -27,11 +27,8 @@ import Header from "../Header/page";
 import AurikaGoldCoin from "@/public/AurikaGoldCoin.png";
 import EthereumCoin from "@/public/EthereumCoin.png";
 import "./page.css";
-import Footer from "../Footer/page";
 
 function Dashboard() {
-  if (typeof window === "undefined") return null;
-
   //styles
   const imageStyle = {
     borderRadius: "50%",
@@ -1121,7 +1118,7 @@ function Dashboard() {
           </div>
         )}
 
-        <Footer></Footer>
+        <div className="min-h-screen bg-gray-100"></div>
       </div>
     </>
   );
