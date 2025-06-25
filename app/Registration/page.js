@@ -170,6 +170,7 @@ function Registration() {
       return;
     }
     const userData = {
+      action: 'createUser',
       walletAddress,
       name,
       email,

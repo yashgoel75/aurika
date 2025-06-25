@@ -41,8 +41,11 @@ function Dashboard() {
   const router = useRouter();
   const AURIKA_ADDRESS = "0x26B0E24796a52fd8D6D25E165C69f1D3b78Ec859";
   const GETPRICE_ADDRESS = "0x6d2C92EbCCcF6347EbeDef5e8961569914c3e091";
+  const account = useAccount();
   const { address, isConnected } = useAccount();
-
+  const walletAddress = account.address;
+  console.log("Wallet Address: ", walletAddress);
+  console.log(typeof (walletAddress));
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [portfolioValue, setPortfolioValue] = useState("0");
   const [portfolioValueUnit, setPortfolioValueUnit] = useState(true);
@@ -397,6 +400,7 @@ function Dashboard() {
   const [isBuyOrderPending, setIsBuyOrderPending] = useState(false);
   const [isBuyOrderSuccess, setIsBuyOrderSuccess] = useState(false);
   const [isBuyOrderFailed, setIsBuyOrderFailed] = useState(false);
+  const [isBuyHashReady, setIsBuyHashReady] = useState(false);
   const [buyOrderHash, setBuyOrderHash] = useState("");
 
   const handleBuyOrder = async () => {
@@ -404,33 +408,30 @@ function Dashboard() {
       setIsBuyOrderPending(true);
       setIsBuyOrderFailed(false);
       setIsBuyOrderSuccess(false);
+      setIsBuyHashReady(false);
+
       const account = await getAccount();
       if (!account) throw new Error("No wallet connected");
-      const isBuyOrder = true;
 
       // Convert gold quantity to milligrams (BigInt)
-      const quantity = BigInt(Math.round(Number(convertedGoldtoBuy))); // in mg
+      const quantityBigInt = BigInt(Math.round(Number(convertedGoldtoBuy))); // in mg
+      if (quantityBigInt === BigInt(0))
+        throw new Error("Quantity cannot be zero");
 
       // Get total ETH amount in wei (BigInt)
       const amountInWei = getAmoutInWei();
-
-      if (quantity === BigInt(0)) {
-        throw new Error("Quantity cannot be zero");
-      }
-
-      if (amountInWei === BigInt(0)) {
+      if (amountInWei === BigInt(0))
         throw new Error("ETH amount cannot be zero");
-      }
 
       // Calculate average price in wei per mg
-      const avgPrice = amountInWei / quantity;
+      const avgPriceBigInt = amountInWei / quantityBigInt;
 
       // Execute the contract write
       const hash = await walletClient.writeContract({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
         functionName: "addOrder",
-        args: [true, quantity, avgPrice],
+        args: [true, quantityBigInt, avgPriceBigInt],
         account,
         value: amountInWei,
       });
@@ -440,14 +441,40 @@ function Dashboard() {
 
       // Wait for transaction receipt
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsBuyHashReady(true);
+
       setIsBuyOrderPending(false);
       setIsBuyOrderSuccess(true);
       console.log("Buy order transaction receipt:", receipt);
 
-      // Refetch user data to update portfolio
+      // Refetch user data
       await refetchUserData();
+
+      // Send order to backend as strings
+      console.log(account.address);
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "addOrder",
+          walletAddress: walletAddress,
+          order: {
+            type: "buy",
+            hash: hash,
+            avgPrice: avgPriceBigInt.toString(),
+            quantity: quantityBigInt.toString(),
+            totalValue: amountInWei.toString(),
+          },
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+      // if (!response.ok) {
+      //   throw new Error(data.error || "Failed to save order");
+      // }
     } catch (err) {
-      console.error("Buy transaction failed:", err);
+      console.error("Buy transaction failed:", err.message);
       setIsBuyOrderPending(false);
       setIsBuyOrderFailed(true);
     }
@@ -456,11 +483,18 @@ function Dashboard() {
   const [isSellOrderPending, setIsSellOrderPending] = useState(false);
   const [isSellOrderSuccess, setIsSellOrderSuccess] = useState(false);
   const [isSellOrderFailed, setIsSellOrderFailed] = useState(false);
+  const [isSellHashReady, setIsSellHashReady] = useState(false);
   const [sellOrderHash, setSellOrderHash] = useState("");
 
   const handleSellOrder = async () => {
     try {
-      const isBuyOrder = false;
+      setIsSellOrderPending(true);
+      setIsSellOrderSuccess(false);
+      setIsSellOrderFailed(false);
+      setIsSellHashReady(false);
+
+      const account = await getAccount();
+      if (!account) throw new Error("No wallet connected");
 
       // Convert gold amount to milligrams (BigInt)
       const goldInMg =
@@ -468,29 +502,26 @@ function Dashboard() {
           ? BigInt(Math.round(Number(goldAmounttoSell)))
           : BigInt(Math.round(Number(goldAmounttoSell) * 1000));
 
-      // Validate quantity
-      if (goldInMg === BigInt(0)) {
+      if (goldInMg === BigInt(0))
         throw new Error("Gold quantity cannot be zero");
-      }
 
-      // Validate user has enough gold
-      const userGoldBalance = BigInt(quantity || 0);
-      if (goldInMg > userGoldBalance) {
+      // Validate user gold balance
+      const userGoldBalance = BigInt(userData?.goldBalance || 0); // Fetch from contract/backend
+      if (goldInMg > quantity)
         throw new Error("Insufficient gold balance");
-      }
 
       // Calculate ETH value in wei
       const ethValue = parseUnits(convertedEthtoSell, 18);
 
       // Calculate average price in wei per mg
-      const avgPrice = ethValue / goldInMg;
+      const avgPriceBigInt = ethValue / goldInMg;
 
       // Execute the contract write
       const hash = await walletClient.writeContract({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
         functionName: "addOrder",
-        args: [false, goldInMg, avgPrice],
+        args: [false, goldInMg, avgPriceBigInt],
         account,
       });
 
@@ -498,16 +529,36 @@ function Dashboard() {
       setSellOrderHash(hash);
 
       // Wait for transaction receipt
-      setIsSellOrderPending(true);
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsSellHashReady(true);
       setIsSellOrderPending(false);
       setIsSellOrderSuccess(true);
       console.log("Sell order transaction receipt:", receipt);
-
-      // Refetch user data to update portfolio
+      // Refetch user data
       await refetchUserData();
+
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "addOrder",
+          walletAddress: walletAddress,
+          order: {
+            type: "sell",
+            hash: hash,
+            avgPrice: (avgPriceBigInt).toString(),
+            quantity: (goldInMg).toString(),
+            totalValue: (avgPriceBigInt*goldInMg).toString(),
+          },
+        }),
+      });
+
+      const data = await response.json();
+      // if (!response.ok) {
+      //   throw new Error(data.error || "Failed to save order");
+      // }
     } catch (err) {
-      console.error("Sell transaction failed:", err);
+      console.error("Sell transaction failed:", err.message);
       setIsSellOrderPending(false);
       setIsSellOrderFailed(true);
     }
@@ -753,7 +804,7 @@ function Dashboard() {
                 ) : null}
 
                 {isBuyOrderFailed ? (
-                  <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-600 w-full rounded p-1">
+                  <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-800 w-full rounded p-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       height="24px"
@@ -768,8 +819,8 @@ function Dashboard() {
                   </p>
                 ) : null}
 
-                {isBuyOrderPending || isBuyOrderSuccess || isBuyOrderFailed ? (
-                  <p className="mt-2">Transaction Hash: {buyOrderHash}</p>
+                {isBuyHashReady ? (
+                  <p className="mt-2">Transaction Hash: {buyOrderHash}&nbsp;</p>
                 ) : null}
 
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
@@ -779,7 +830,7 @@ function Dashboard() {
                   </p>
                   <p>
                     <strong>Wallet Balance:</strong>&nbsp;
-                    {Number(balance?.formatted).toFixed(2) ?? "0.00"}{" "}
+                    {Number(balance?.formatted).toFixed(2) ?? "0.00"}&nbsp;
                     {balance?.symbol ?? ""}
                   </p>
                 </div>
@@ -872,7 +923,7 @@ function Dashboard() {
                 ) : null}
 
                 {isSellOrderFailed ? (
-                  <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-600 w-full rounded p-1">
+                  <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-800 w-full rounded p-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       height="24px"
@@ -887,10 +938,10 @@ function Dashboard() {
                   </p>
                 ) : null}
 
-                {isSellOrderPending ||
-                isSellOrderSuccess ||
-                isSellOrderFailed ? (
-                  <p className="mt-2">Transaction Hash: {sellOrderHash}</p>
+                {isSellHashReady ? (
+                  <p className="mt-2">
+                    Transaction Hash: {sellOrderHash}&nbsp;
+                  </p>
                 ) : null}
 
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
