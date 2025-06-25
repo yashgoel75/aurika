@@ -45,7 +45,7 @@ function Dashboard() {
   const { address, isConnected } = useAccount();
   const walletAddress = account.address;
   console.log("Wallet Address: ", walletAddress);
-  console.log(typeof (walletAddress));
+  console.log(typeof walletAddress);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [portfolioValue, setPortfolioValue] = useState("0");
   const [portfolioValueUnit, setPortfolioValueUnit] = useState(true);
@@ -507,8 +507,7 @@ function Dashboard() {
 
       // Validate user gold balance
       const userGoldBalance = BigInt(userData?.goldBalance || 0); // Fetch from contract/backend
-      if (goldInMg > quantity)
-        throw new Error("Insufficient gold balance");
+      if (goldInMg > quantity) throw new Error("Insufficient gold balance");
 
       // Calculate ETH value in wei
       const ethValue = parseUnits(convertedEthtoSell, 18);
@@ -546,9 +545,9 @@ function Dashboard() {
           order: {
             type: "sell",
             hash: hash,
-            avgPrice: (avgPriceBigInt).toString(),
-            quantity: (goldInMg).toString(),
-            totalValue: (avgPriceBigInt*goldInMg).toString(),
+            avgPrice: avgPriceBigInt.toString(),
+            quantity: goldInMg.toString(),
+            totalValue: (avgPriceBigInt * goldInMg).toString(),
           },
         }),
       });
