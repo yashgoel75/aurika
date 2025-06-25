@@ -199,7 +199,7 @@ function SignIn() {
             <button
               onClick={handlePinSubmit}
               type="submit"
-              className="prevent-select mt-3 bg-teal-500 text-lg py-2 rounded-md hover:bg-teal-400 cursor-pointer transition duration-200"
+              className="prevent-select mt-3 bg-violet-600 text-white text-lg py-2 rounded-md hover:bg-violet-700 cursor-pointer transition duration-200"
             >
               Sign In
             </button>

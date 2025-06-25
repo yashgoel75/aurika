@@ -602,7 +602,7 @@ function Dashboard() {
         ) : null}
 
         <div className="bg-gray-100 pt-3">
-          <div className="bg-gray-100 m-auto w-95/100 relative z-10">
+          <div className="bg-gray-100 m-auto w-92/100 px-8 py-4 relative z-10">
             <div className="flex flex-row">
               <h1 className="text-xl font-bold">Welcome back,&nbsp;</h1>
               <h1 className="text-xl">{name}</h1>
@@ -619,7 +619,7 @@ function Dashboard() {
         {/* <div className="account-container pl-8 pt-8 bg-gray-100">
           <h1 className="text-[24px] font-onest font-bold mb-2">Gold Locker</h1>
           </div> */}
-        <div className="flex p-4 pt-8 justify-center bg-gray-100">
+        <div className="flex p-4 pt-8 w-92/100 m-auto justify-center bg-gray-100">
           <div className="flex items-center w-95/100 m-auto">
             <Image
               className="bg-white shadow-lg"
@@ -630,7 +630,7 @@ function Dashboard() {
             ></Image>
             <div className="flex justify-center items-center w-40/100">
               <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
-                <h1 className="m-1 text-center bg-linear-to-bl from-stone-800 to-neutral-500 text-white p-1 text-lg w-40/100 border rounded-full">
+                <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border rounded-full">
                   <select
                     id="ethUnit"
                     className="border-none outline-none focus:ring-0"
@@ -676,7 +676,7 @@ function Dashboard() {
                   }
                   disabled
                 />
-                <h1 className="m-1 text-center bg-linear-to-bl from-stone-800 to-neutral-500 text-white p-1 text-lg w-40/100 border rounded-full">
+                <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border rounded-full">
                   <select
                     id="goldUnit"
                     className="border-none outline-none focus:ring-0"
@@ -825,7 +825,7 @@ function Dashboard() {
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
                     <strong>Buying Price:&nbsp;</strong>ETH&nbsp;
-                    {Number(convertedEth).toFixed(2)}/gm
+                    {Number(convertedEth).toFixed(4)}/gm
                   </p>
                   <p>
                     <strong>Wallet Balance:</strong>&nbsp;
@@ -946,7 +946,7 @@ function Dashboard() {
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
                     <strong>Selling Price:&nbsp;</strong>ETH&nbsp;
-                    {Number(convertedEth).toFixed(2)}/gm
+                    {Number(convertedEth).toFixed(4)}/gm
                   </p>
                   <p>
                     <strong>Current Aurika Balance:</strong>&nbsp;

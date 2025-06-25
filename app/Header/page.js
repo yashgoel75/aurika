@@ -11,16 +11,17 @@ import { useAccount } from "wagmi";
 function Header() {
   const router = useRouter();
   const account = useAccount();
-
+  const { address, isConnected } = useAccount();
+  console.log(address);
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!account.isConnected) {
+      if (!address) {
         router.push("/");
       }
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [account.isConnected]);
+  }, [address]);
 
   const [showNavigationBar, setShowNavigationBar] = useState(false);
 
@@ -147,8 +148,8 @@ function Header() {
           </div>
         </div>
       ) : null}
-
-      <div className="flex items-center justify-between p-4 bg-gray-100 text-lg text-white">
+      <div className="bg-gray-100">
+      <div className="flex items-center w-11/12 m-auto py-4 justify-between p-4 bg-gray-100 text-lg text-white">
         <Image
           src={logo}
           alt="Aurika Logo"
@@ -219,7 +220,7 @@ function Header() {
                 &nbsp;Orders
               </a>
             </li>
-            <li>
+            <li className="mr-4">
               <a
                 className="flex flex-row items-center justify-center"
                 onClick={handleAccountNavigation}
@@ -236,7 +237,7 @@ function Header() {
                 &nbsp;Account
               </a>
             </li>
-            <li title="Settings">
+            {/* <li title="Settings">
               <a
                 className="flex flex-row items-center justify-center"
                 onClick={handleSettingsNavigation}
@@ -262,10 +263,11 @@ function Header() {
               >
                 <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm40-83q119-15 199.5-104.5T800-480q0-123-80.5-212.5T520-797v634Z" />
               </svg>
-            </li>
+            </li> */}
           </ul>
         </div>
-      </div>
+        </div>
+        </div>
     </>
   );
 }

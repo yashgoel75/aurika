@@ -6,6 +6,10 @@ const ordersSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      required: false,
+    },
     hash: {
       type: String,
       required: true,

@@ -299,112 +299,114 @@ function Portfolio() {
   return (
     <>
       <Header />
-      <div className="portfolio-container p-8 bg-gray-100 min-h-screen">
-        <h1 className="text-3xl font-bold mb-4">Portfolio</h1>
-        <div className="flex flex-col justify-center items-center m-auto w-9/10">
-          <Image
-            className="bg-white shadow-lg mb-4"
-            src={AurikaGoldCoin}
-            style={imageStyle}
-            alt="Aurika Coin"
-            priority
-          ></Image>
-          <div className="grid grid-cols-1 gap-4 max-w-lg w-full mt-6 bg-white p-6 rounded-lg shadow-lg">
-            {/* Holdings */}
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-semibold text-lg">
-                Your Holdings:
-              </span>
-              <span className="text-lg font-medium ">
-                {quantity < 1000 ? quantity : quantity / 1000}
-                {portfolioValueUnit ? " gm" : " mg"}
-              </span>
-            </div>
+      <div className="bg-gray-100 min-h-screen">
+        <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-100">
+          <h1 className="text-[38px] font-[550] mb-4">Portfolio</h1>
+          <div className="flex flex-col justify-center items-center m-auto w-9/10">
+            <Image
+              className="bg-white shadow-lg mb-4"
+              src={AurikaGoldCoin}
+              style={imageStyle}
+              alt="Aurika Coin"
+              priority
+            ></Image>
+            <div className="grid grid-cols-1 gap-4 max-w-lg w-full mt-6 bg-white p-6 rounded-lg shadow-lg">
+              {/* Holdings */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-semibold text-lg">
+                  Your Holdings:
+                </span>
+                <span className="text-lg font-medium ">
+                  {quantity < 1000 ? quantity : quantity / 1000}
+                  {portfolioValueUnit ? " gm" : " mg"}
+                </span>
+              </div>
 
-            {/* Invested Value */}
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-semibold text-lg">
-                Invested Value:
-              </span>
-              <span className="text-lg font-medium ">
-                {(Number(portfolioValue) / 1e18).toFixed(4)} SepoliaETH
-              </span>
-            </div>
+              {/* Invested Value */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-semibold text-lg">
+                  Invested Value:
+                </span>
+                <span className="text-lg font-medium ">
+                  {(Number(portfolioValue) / 1e18).toFixed(4)} SepoliaETH
+                </span>
+              </div>
 
-            {/* Current Value in USD */}
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-semibold text-lg">
-                Current Value (USD):
-              </span>
-              <span className="text-lg font-medium ">
-                ${currentValueUSD}
-                {valueChangePercent !== "0" &&
-                  !isNaN(Number(valueChangePercent)) && (
-                    <span
-                      className={`ml-2 ${
-                        Number(valueChangePercent) >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      ({Number(valueChangePercent) >= 0 ? "+" : ""}
-                      {valueChangePercent}%)
-                    </span>
-                  )}
-              </span>
-            </div>
+              {/* Current Value in USD */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-semibold text-lg">
+                  Current Value (USD):
+                </span>
+                <span className="text-lg font-medium ">
+                  ${currentValueUSD}
+                  {valueChangePercent !== "0" &&
+                    !isNaN(Number(valueChangePercent)) && (
+                      <span
+                        className={`ml-2 ${
+                          Number(valueChangePercent) >= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        ({Number(valueChangePercent) >= 0 ? "+" : ""}
+                        {valueChangePercent}%)
+                      </span>
+                    )}
+                </span>
+              </div>
 
-            {/* Current Value in ETH */}
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-semibold text-lg">
-                Current Value (ETH):
-              </span>
-              <span className="text-lg font-medium ">
-                {currentValueETH} SepoliaETH
-                {valueChangePercent !== "0" &&
-                  !isNaN(Number(valueChangePercent)) && (
-                    <span
-                      className={`ml-2 ${
-                        Number(valueChangePercent) >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      ({Number(valueChangePercent) >= 0 ? "+" : ""}
-                      {valueChangePercent}%)
-                    </span>
-                  )}
-              </span>
-            </div>
+              {/* Current Value in ETH */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-semibold text-lg">
+                  Current Value (ETH):
+                </span>
+                <span className="text-lg font-medium ">
+                  {currentValueETH} SepoliaETH
+                  {valueChangePercent !== "0" &&
+                    !isNaN(Number(valueChangePercent)) && (
+                      <span
+                        className={`ml-2 ${
+                          Number(valueChangePercent) >= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        ({Number(valueChangePercent) >= 0 ? "+" : ""}
+                        {valueChangePercent}%)
+                      </span>
+                    )}
+                </span>
+              </div>
 
-            {/* Net Profit / Loss */}
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-gray-700 font-semibold text-lg">
-                Net Profit / Loss:
-              </span>
-              <span className="text-lg font-medium">
-                {(() => {
-                  const investedETH = Number(portfolioValue) / 1e18;
-                  const currentETH = Number(currentValueETH);
-                  const net = currentETH - investedETH;
+              {/* Net Profit / Loss */}
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-gray-700 font-semibold text-lg">
+                  Net Profit / Loss:
+                </span>
+                <span className="text-lg font-medium">
+                  {(() => {
+                    const investedETH = Number(portfolioValue) / 1e18;
+                    const currentETH = Number(currentValueETH);
+                    const net = currentETH - investedETH;
 
-                  if (isNaN(net)) return "-";
+                    if (isNaN(net)) return "-";
 
-                  const formatted = net.toFixed(4);
+                    const formatted = net.toFixed(4);
 
-                  if (net > 0) {
-                    return (
-                      <span className="text-green-600">+{formatted} ETH</span>
-                    );
-                  } else if (net < 0) {
-                    return (
-                      <span className="text-red-600">{formatted} ETH</span>
-                    );
-                  } else {
-                    return <span className="text-gray-600">0.0000 ETH</span>;
-                  }
-                })()}
-              </span>
+                    if (net > 0) {
+                      return (
+                        <span className="text-green-600">+{formatted} ETH</span>
+                      );
+                    } else if (net < 0) {
+                      return (
+                        <span className="text-red-600">{formatted} ETH</span>
+                      );
+                    } else {
+                      return <span className="text-gray-600">0.0000 ETH</span>;
+                    }
+                  })()}
+                </span>
+              </div>
             </div>
           </div>
         </div>

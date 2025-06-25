@@ -45,7 +45,7 @@ export default function Home() {
           className="mb-4"
           priority
         />
-        <WalletButton wallet="metamask" />
+        <ConnectButton />
       </div>
     </>
   );

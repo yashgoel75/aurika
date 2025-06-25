@@ -76,6 +76,7 @@ export async function POST(request) {
 
       user.orders.push({
         type: order.type,
+        status: order.status,
         hash: order.hash,
         avgPrice: order.avgPrice,
         quantity: order.quantity,
@@ -115,9 +116,7 @@ export async function GET(request) {
         name: user ? user.name : null,
         email: user ? user.email : null,
         pin: user ? user.pin : null,
-        orders: user
-          ? user.orders
-          : [],
+        orders: user ? user.orders : [],
       },
       { status: 200 }
     );
