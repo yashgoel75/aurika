@@ -26,7 +26,7 @@ export async function GET(request) {
         <h2 style="font-size: 24px; font-weight: bold;">${otp}</h2>
         <p>This OTP is valid for <strong>10 minutes.</strong></p>
         <p>If you did not request this, please ignore this email.</p>
-        <p>Best regards,<br>Aurika Team</p>
+        <p>Best regards,<br>Team Aurika</p>
       `,
     });
     

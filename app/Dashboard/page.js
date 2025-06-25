@@ -54,6 +54,7 @@ function Dashboard() {
   const [ethUsdPrice, setEthUsdPrice] = useState("0");
   const [xauUsdPrice, setXauUsdPrice] = useState("0");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [buyButton, setBuyButton] = useState(true);
   const [sellButton, setSellButton] = useState(false);
 
@@ -159,6 +160,7 @@ function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         setName(data.name);
+        setEmail(data.email);
       }
     }
 
@@ -469,6 +471,10 @@ function Dashboard() {
       });
 
       const data = await response.json();
+      fetch(
+        `api/order/buy?name=${name}&email=${email}&avgPrice=${avgPriceBigInt.toString()}&quantity=${quantityBigInt.toString()}&totalPrice=${amountInWei.toString()}&hash=${hash}`
+      );
+
       console.log(data);
       // if (!response.ok) {
       //   throw new Error(data.error || "Failed to save order");
@@ -553,6 +559,10 @@ function Dashboard() {
       });
 
       const data = await response.json();
+
+      fetch(
+        `api/order/sell?name=${name}&email=${email}&avgPrice=${avgPriceBigInt.toString()}&quantity=${goldInMg.toString()}&totalPrice=${(avgPriceBigInt * goldInMg).toString()}&hash=${hash}`
+      );
       // if (!response.ok) {
       //   throw new Error(data.error || "Failed to save order");
       // }
@@ -604,10 +614,10 @@ function Dashboard() {
         <div className="bg-gray-100 pt-3">
           <div className="bg-gray-100 m-auto w-92/100 px-8 py-4 relative z-10">
             <div className="flex flex-row">
-              <h1 className="text-xl font-bold">Welcome back,&nbsp;</h1>
+              <h1 className="text-xl font-bold mb-1">Welcome back,&nbsp;</h1>
               <h1 className="text-xl">{name}</h1>
             </div>
-            <h1 className="text-xl mb-5">
+            <h1 className="text-xl mb-5 mt-1">
               <strong>Your Portfolio:&nbsp;</strong>
               {quantity < 1000 ? quantity : quantity / 1000}&nbsp;
               {portfolioValueUnit ? "gm" : "mg"}
@@ -619,7 +629,7 @@ function Dashboard() {
         {/* <div className="account-container pl-8 pt-8 bg-gray-100">
           <h1 className="text-[24px] font-onest font-bold mb-2">Gold Locker</h1>
           </div> */}
-        <div className="flex p-4 pt-8 w-92/100 m-auto justify-center bg-gray-100">
+        <div className="flex p-4 pt-5 w-92/100 m-auto justify-center bg-gray-100">
           <div className="flex items-center w-95/100 m-auto">
             <Image
               className="bg-white shadow-lg"

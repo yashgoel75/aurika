@@ -120,7 +120,7 @@ function Portfolio() {
                           {weiToEth(order.totalValue)} ETH
                         </td>
                         <td className="p-2 border text-center">
-                          <span className="rounded py-1 px-2 bg-green-600 text-white text-sm">
+                          <span className="rounded-lg py-1 px-2 bg-green-600 text-white text-sm">
                             Completed
                           </span>
                         </td>
