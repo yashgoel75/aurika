@@ -73,6 +73,13 @@ function Dashboard() {
   const [goldToEthUnitType, setGoldToEthUnitType] = useState("GM"); // or "MG"
   const [ethOutputUnitType, setEthOutputUnitType] = useState("ETH"); // or "GWEI", "WEI"
 
+  const [goldAmountBuyingPrice, setGoldAmountBuyingPrice] = useState("1");
+  const [buyingPrice, setBuyingPrice] = useState("");
+  const [goldToEthUnitTypeBuyingPrice, setGoldToEthUnitTypeBuyingPrice] =
+    useState("GM"); // or "MG"
+  const [ethOutputUnitTypeBuyingPrice, setEthOutputUnitTypeBuyingPrice] =
+    useState("ETH"); // or "GWEI", "WEI"
+
   const [goldAmounttoSell, setGoldAmounttoSell] = useState("1");
   const [convertedEthtoSell, setConvertedEthtoSell] = useState("");
   const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
@@ -80,6 +87,7 @@ function Dashboard() {
 
   const [isSwapped, setIsSwapped] = useState(false);
   const { writeContract } = useWriteContract();
+  const [isVisible, setIsVisible] = useState(false);
 
   const { data: balance } = useBalance({
     address,
@@ -321,6 +329,45 @@ function Dashboard() {
   ]);
 
   useEffect(() => {
+    if (!goldAmount || !ethUsdPrice || !xauUsdPrice) {
+      setBuyingPrice("");
+      return;
+    }
+
+    const xauPerGram = xauUsdPrice / 31.1035;
+
+    const goldInGrams =
+      goldToEthUnitTypeBuyingPrice === "MG"
+        ? Number(goldAmountBuyingPrice) / 1000
+        : Number(goldAmountBuyingPrice);
+
+    const usdValue = goldInGrams * xauPerGram;
+
+    const ethValue = usdValue / ethUsdPrice;
+
+    let finalEth;
+    switch (ethOutputUnitTypeBuyingPrice) {
+      case "WEI":
+        finalEth = ethValue * 1e18;
+        break;
+      case "GWEI":
+        finalEth = ethValue * 1e9;
+        break;
+      case "ETH":
+      default:
+        finalEth = ethValue;
+    }
+
+    setBuyingPrice(finalEth.toFixed(8));
+  }, [
+    goldAmount,
+    goldToEthUnitType,
+    ethOutputUnitType,
+    ethUsdPrice,
+    xauUsdPrice,
+  ]);
+
+  useEffect(() => {
     if (!goldAmounttoSell || !ethUsdPrice || !xauUsdPrice) {
       setConvertedEthtoSell("");
       return;
@@ -365,6 +412,10 @@ function Dashboard() {
     setShowDisclaimer(false);
     localStorage.setItem("disclaimerAcknowledged", "true");
   };
+
+  function handleSwap() {
+    setIsSwapped(!isSwapped);
+  }
 
   function handleBuyButton() {
     setSellButton(false);
@@ -618,10 +669,40 @@ function Dashboard() {
               <h1 className="text-xl font-bold mb-1">Welcome back,&nbsp;</h1>
               <h1 className="text-xl">{name}</h1>
             </div>
-            <h1 className="text-xl mb-5 mt-1">
+            <h1 className="text-xl mb-5 mt-1 flex items-center">
               <strong>Your Portfolio:&nbsp;</strong>
-              {quantity < 1000 ? quantity : quantity / 1000}&nbsp;
-              {portfolioValueUnit ? "gm" : "mg"}
+              {isVisible ? (
+                <>
+                  {quantity < 1000 ? quantity : quantity / 1000}&nbsp;
+                  {portfolioValueUnit ? "gm" : "mg"}&nbsp;
+                  <svg
+                    onClick={() => setIsVisible(false)}
+                    className="ml-1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#000000"
+                  >
+                    <path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z" />
+                  </svg>
+                </>
+              ) : (
+                <>
+                  ••••••
+                  <svg
+                    className="ml-1"
+                    onClick={() => setIsVisible(true)}
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="#000000"
+                  >
+                    <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
+                  </svg>
+                </>
+              )}
             </h1>
 
             <div className="horizontalRule"></div>
@@ -634,38 +715,61 @@ function Dashboard() {
           <div className="flex items-center w-95/100 m-auto">
             <Image
               className="bg-white shadow-lg"
-              src={EthereumCoin}
+              src={isSwapped ? AurikaGoldCoin : EthereumCoin}
               style={imageStyle}
-              alt="Ethereum Coin"
+              alt={isSwapped ? "Aurika" : "Ethereum Coin"}
               priority
             ></Image>
             <div className="flex justify-center items-center w-40/100">
-              <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
-                <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border rounded-full">
-                  <select
-                    id="ethUnit"
-                    className="border-none outline-none focus:ring-0"
-                    value={ethUnitType}
-                    onChange={(e) => setEthUnitType(e.target.value)}
-                  >
-                    <option>WEI</option>
-                    <option>GWEI</option>
-                    <option>ETH</option>
-                  </select>
-                </h1>
-                <input
-                  className="mr-1 rounded-full w-60/100 border bg-stone-50 border-2 p-1 pl-3"
-                  placeholder="1"
-                  type="text"
-                  value={ethAmount}
-                  onChange={(e) => setEthAmount(e.target.value)}
-                />
-              </div>
+              {!isSwapped ? (
+                <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                    <select
+                      id="ethUnit"
+                      className="border-none outline-none focus:ring-0"
+                      value={ethUnitType}
+                      onChange={(e) => setEthUnitType(e.target.value)}
+                    >
+                      <option>WEI</option>
+                      <option>GWEI</option>
+                      <option>ETH</option>
+                    </select>
+                  </h1>
+                  <input
+                    className={`${isSwapped ? "ml-1" : "mr-1"} text-lg rounded-full w-60/100 border-violet-400 bg-stone-50 border-1 p-1 pl-3 shadow-md`}
+                    placeholder="1"
+                    type="text"
+                    value={ethAmount}
+                    onChange={(e) => setEthAmount(e.target.value)}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                    <select
+                      id="goldUnit"
+                      className="border-none outline-none focus:ring-0"
+                      value={goldUnitType}
+                      onChange={(e) => setGoldToEthUnitType(e.target.value)}
+                    >
+                      <option>GRAM</option>
+                      <option>MG</option>
+                    </select>
+                  </h1>
+                  <input
+                    className={`${isSwapped ? "mr-1" : "ml-1"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 bg-stone-50 shadow-md`}
+                    placeholder={0}
+                    value={goldAmount}
+                    onChange={(e) => setGoldAmount(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="w-20/100 flex justify-center items-center">
               <div className="shadow-md bg-white hover:bg-stone-50 hover:shadow-lg cursor-pointer rounded-full p-3">
                 <svg
+                  onClick={handleSwap}
                   xmlns="http://www.w3.org/2000/svg"
                   height="40"
                   viewBox="0 -960 960 960"
@@ -678,38 +782,63 @@ function Dashboard() {
             </div>
 
             <div className="w-40/100 flex justify-center items-center font-onest">
-              <div className="flex items-center w-full mr-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
-                <input
-                  className="ml-1 rounded-full w-60/100 border-2 p-1 pl-3 bg-stone-50"
-                  placeholder={0}
-                  value={
-                    convertedGold ? Number(convertedGold).toFixed(2) : "0.00"
-                  }
-                  disabled
-                />
-                <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border rounded-full">
-                  <select
-                    id="goldUnit"
-                    className="border-none outline-none focus:ring-0"
-                    value={goldUnitType}
-                    onChange={(e) => setGoldUnitType(e.target.value)}
-                  >
-                    <option>GRAM</option>
-                    <option>MG</option>
-                  </select>
-                </h1>
-              </div>
+              {!isSwapped ? (
+                <div className="flex items-center w-full mr-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                  <input
+                    className={`${isSwapped ? "mr-1" : "ml-1"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 bg-stone-50 shadow-md`}
+                    placeholder={0}
+                    value={
+                      convertedGold ? Number(convertedGold).toFixed(2) : "0.00"
+                    }
+                    disabled
+                  />
+                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                    <select
+                      id="goldUnit"
+                      className="border-none outline-none focus:ring-0"
+                      value={goldUnitType}
+                      onChange={(e) => setGoldUnitType(e.target.value)}
+                    >
+                      <option>GRAM</option>
+                      <option>MG</option>
+                    </select>
+                  </h1>
+                </div>
+              ) : (
+                <div className="flex items-center w-full mr-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                  <input
+                    className={`${isSwapped ? "ml-1" : "mr-1"} text-lg rounded-full w-60/100 border-violet-400 bg-stone-50 border-1 p-1 pl-3 shadow-md`}
+                    placeholder="1"
+                    type="text"
+                    value={convertedEth}
+                    disabled
+                  />
+                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                    <select
+                      id="ethUnit"
+                      className="border-none outline-none focus:ring-0"
+                      value={ethOutputUnitType}
+                      onChange={(e) => setEthOutputUnitType(e.target.value)}
+                    >
+                      <option>WEI</option>
+                      <option>GWEI</option>
+                      <option>ETH</option>
+                    </select>
+                  </h1>
+                </div>
+              )}
             </div>
 
             <Image
               className="bg-white shadow-lg"
-              src={AurikaGoldCoin}
+              src={isSwapped ? EthereumCoin : AurikaGoldCoin}
               style={imageStyle}
-              alt="Aurika"
+              alt={isSwapped ? "Ethereum Coin" : "Aurika"}
               priority
             ></Image>
           </div>
         </div>
+
         <div className="flex justify-center">
           <button
             onClick={handleBuyButton}
@@ -753,7 +882,7 @@ function Dashboard() {
 
                   <select
                     id="currency"
-                    className="bg-violet-500 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    className="bg-linear-to-bl from-violet-400 to-purple-700 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
                     value={ethUnitTypetoBuy}
                     onChange={(e) => setEthUnitTypetoBuy(e.target.value)}
                   >
@@ -836,7 +965,7 @@ function Dashboard() {
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
                     <strong>Buying Price:&nbsp;</strong>
-                    {Number(convertedEth).toFixed(4)}&nbsp;ETH/gm
+                    {Number(buyingPrice).toFixed(4)}&nbsp;ETH/gm
                   </p>
                   <p>
                     <strong>Wallet Balance:</strong>&nbsp;
@@ -887,7 +1016,7 @@ function Dashboard() {
                     value={goldToEthUnitTypetoSell}
                     onChange={(e) => setGoldToEthUnitTypetoSell(e.target.value)}
                     id="quantity"
-                    className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    className="bg-linear-to-bl from-violet-400 to-purple-700 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
                   >
                     <option>MG</option>
                     <option>GM</option>
@@ -967,7 +1096,7 @@ function Dashboard() {
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
                     <strong>Selling Price:&nbsp;</strong>
-                    {Number(convertedEth).toFixed(4)}&nbsp;ETH/gm
+                    {Number(buyingPrice).toFixed(4)}&nbsp;ETH/gm
                   </p>
                   <p>
                     <strong>Current Aurika Balance:</strong>&nbsp;

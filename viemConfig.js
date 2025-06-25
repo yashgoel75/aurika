@@ -6,13 +6,16 @@ export const publicClient = createPublicClient({
   transport: http('https://eth-sepolia.g.alchemy.com/v2/XGpKRqmXhARxO7iDkxRAY'),
 });
 
-export const walletClient = createWalletClient({
-  chain: sepolia,
-  transport: custom(typeof window !== 'undefined' ? window.ethereum : undefined),
-});
+let walletClient;
 
 export const getAccount = async () => {
   if (typeof window !== 'undefined' && window.ethereum) {
+    if (!walletClient) {
+      walletClient = createWalletClient({
+        chain: sepolia,
+        transport: custom(window.ethereum),
+      });
+    }
     const accounts = await walletClient.requestAddresses();
     return accounts[0] || null;
   }

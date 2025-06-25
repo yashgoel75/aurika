@@ -170,7 +170,7 @@ function Registration() {
       return;
     }
     const userData = {
-      action: 'createUser',
+      action: "createUser",
       walletAddress,
       name,
       email,
@@ -217,6 +217,10 @@ function Registration() {
   //     }
 
   // , [account.isConnected]);
+  const [isNameEmpty, setIsNameEmpty] = useState(true);
+  const [isEmailEmpty, setIsEmailEmpty] = useState(true);
+  const [isPassEmpty, setIsPassEmpty] = useState(true);
+  const [isPinEmpty, setIsPinEmpty] = useState(true);
 
   return (
     <>
@@ -229,7 +233,7 @@ function Registration() {
           priority
         />
         <h1 className="text-2xl font-bold mb-4">Welcome to Aurika!</h1>
-        <div className="bg-white p-8 rounded-lg w-fit opacity-90 shadow-lg">
+        <div className="bg-white py-4 px-8 rounded-lg w-fit opacity-90 shadow-lg">
           <form className="flex flex-col">
             <h2 className="text-lg font-semibold mb-2 flex justify-center items-center">
               Create your account
@@ -241,6 +245,14 @@ function Registration() {
               className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               id="nameInput"
+              onChange={(e) => {
+                const inputField = e.target;
+                if (inputField.value == "") {
+                  setIsNameEmpty(true);
+                } else {
+                  setIsNameEmpty(false);
+                }
+              }}
             />
             <label className="text-sm font-medium mb-1 form-control">
               Enter your Email
@@ -252,9 +264,17 @@ function Registration() {
                 className="w-70/100 p-2 mb-4 border border-gray-300 rounded-s focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
                 id="emailInput"
+                onChange={(e) => {
+                  const inputField = e.target;
+                  if (inputField.value == "") {
+                    setIsEmailEmpty(true);
+                  } else {
+                    setIsEmailEmpty(false);
+                  }
+                }}
               />
               <button
-                className="bg-blue-500 text-white p-2 mb-4 rounded-e hover:bg-blue-600 transition-colors w-30/100 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-violet-500 text-white p-2 mb-4 rounded-e hover:bg-violet-600 transition-colors w-30/100 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 type="button"
                 id="sendotpButton"
                 onClick={handleSendOtpClick}
@@ -278,7 +298,7 @@ function Registration() {
                     required
                   />
                   <button
-                    className="bg-blue-500 text-white p-2 mb-4 rounded-e hover:bg-blue-600 transition-colors w-30/100 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-violet-500 text-white p-2 mb-4 rounded-e hover:bg-violet-600 transition-colors w-30/100 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     type="button"
                     id="sendverifyButton"
                     onClick={handleVerifyOtpClick}
@@ -289,12 +309,12 @@ function Registration() {
               </div>
             ) : null}
             {otpVerified && (
-              <div className="bg-green-400 text-green-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
-                OTP verification successful
+              <div className="bg-green-400 font-medium font-[onest] text-green-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
+                OTP Verified
               </div>
             )}
             {otpError && (
-              <div className="bg-red-400 text-red-900 flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
+              <div className="bg-red-400 text-red-900 font-[onest] flex justify-center mb-2 hover:cursor-pointer w-full p-1 rounded m-auto">
                 Invalid OTP
               </div>
             )}
@@ -310,6 +330,14 @@ function Registration() {
                   className="p-2 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   id="passwordInput"
+                  onChange={(e) => {
+                    const inputField = e.target;
+                    if (inputField.value == "") {
+                      setIsPassEmpty(true);
+                    } else {
+                      setIsPassEmpty(false);
+                    }
+                  }}
                 />
               </div>
               <div className="flex flex-col w-full ml-2">
@@ -354,6 +382,22 @@ function Registration() {
                   className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   id="pinInput"
+                  inputMode="numeric"
+                  maxLength={6}
+                  onInput={(e) => {
+                    const input = e.target;
+                    input.value = input.value
+                      .replace(/[^0-9]/g, "")
+                      .slice(0, 6);
+                  }}
+                  onChange={(e) => {
+                    const inputField = e.target;
+                    if (inputField.value == "") {
+                      setIsPinEmpty(true);
+                    } else {
+                      setIsPinEmpty(false);
+                    }
+                  }}
                 />
               </div>
               <div className="flex flex-col w-full ml-2">
@@ -364,6 +408,13 @@ function Registration() {
                   className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   id="confirmPinInput"
+                  maxLength={6}
+                  onInput={(e) => {
+                    const input = e.target;
+                    input.value = input.value
+                      .replace(/[^0-9]/g, "")
+                      .slice(0, 6);
+                  }}
                   onChange={(e) => {
                     const inputField = e.target;
                     if (
@@ -386,12 +437,20 @@ function Registration() {
             )}
             <button
               type="submit"
-              className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full"
+              className={`bg-violet-500 text-white p-2 mb-2 rounded hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full`}
               onClick={(e) => {
                 e.preventDefault();
                 handleRegistration();
               }}
-              disabled={!otpVerified}
+              disabled={
+                isNameEmpty ||
+                isEmailEmpty ||
+                isPassEmpty ||
+                isPinEmpty ||
+                otpError ||
+                pinNotMatch ||
+                passwordNotMatch
+              }
             >
               Register
             </button>
