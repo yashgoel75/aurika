@@ -1034,7 +1034,7 @@ function Dashboard() {
                 </div>
 
                 {isSellOrderPending ? (
-                  <p className="flex justify-center items-center m-auto m-2 bg-amber-300 text-yellow-600 w-full rounded p-1">
+                  <p className="flex mt-1 justify-center items-center m-auto m-2 bg-amber-300 text-yellow-600 w-full rounded p-1">
                     <svg
                       className="mr-3 size-5 animate-spin"
                       viewBox="0 0 24 24"
@@ -1058,7 +1058,7 @@ function Dashboard() {
                 ) : null}
 
                 {isSellOrderSuccess ? (
-                  <p className="flex justify-center items-center m-auto m-2 bg-green-500 text-green-900 w-full rounded p-1">
+                  <p className="flex mt-1 justify-center items-center m-auto m-2 bg-green-500 text-green-900 w-full rounded p-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       height="24px"
@@ -1074,7 +1074,7 @@ function Dashboard() {
                 ) : null}
 
                 {isSellOrderFailed ? (
-                  <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-800 w-full rounded p-1">
+                  <p className="flex mt-1 justify-center items-center m-auto m-2 bg-red-400 text-red-800 w-full rounded p-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       height="24px"
