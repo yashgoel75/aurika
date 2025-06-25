@@ -21,3 +21,16 @@ export const getAccount = async () => {
   }
   return null;
 };
+
+export const getWalletClient = async () => {
+  if (typeof window !== 'undefined' && window.ethereum) {
+    if (!walletClient) {
+      walletClient = createWalletClient({
+        chain: sepolia,
+        transport: custom(window.ethereum),
+      });
+    }
+    return walletClient;
+  }
+  throw new Error('Wallet client not available');
+};

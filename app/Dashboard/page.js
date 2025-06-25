@@ -19,7 +19,7 @@ import { useContractRead } from "wagmi";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 //viem
-import { publicClient, walletClient, getAccount } from "../../viemConfig";
+import { publicClient, walletClient, getAccount, getWalletClient } from "../../viemConfig";
 
 //local imports
 import Image from "next/image";
@@ -481,6 +481,7 @@ function Dashboard() {
       const avgPriceBigInt = amountInWei / quantityBigInt;
 
       // Execute the contract write
+      const walletClient = await getWalletClient();
       const hash = await walletClient.writeContract({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
