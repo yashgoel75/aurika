@@ -14,7 +14,7 @@ const App = (props) => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{props.children}</RainbowKitProvider>
+        <RainbowKitProvider modalSize="compact">{props.children}</RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

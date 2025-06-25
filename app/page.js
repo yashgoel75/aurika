@@ -45,7 +45,7 @@ export default function Home() {
           className="mb-4"
           priority
         />
-        <ConnectButton />
+        <ConnectButton label="Continue to Aurika" chainStatus="none" accountStatus="avatar"/>
       </div>
     </>
   );

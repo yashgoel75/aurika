@@ -17,16 +17,15 @@ export async function GET(request) {
   const email = request.nextUrl.searchParams.get("email");
   const avgPrice = request.nextUrl.searchParams.get("avgPrice");
   const quantity = request.nextUrl.searchParams.get("quantity");
-    const totalPrice = request.nextUrl.searchParams.get("totalPrice");
-        const hash = request.nextUrl.searchParams.get("hash");
-
+  const totalPrice = request.nextUrl.searchParams.get("totalPrice");
+  const hash = request.nextUrl.searchParams.get("hash");
 
   if (!email) {
     return NextResponse.json({ error: "Missing email" }, { status: 400 });
   }
 
   // Convert values
-  const avgPriceEth = weiToEth(avgPrice)*1000;
+  const avgPriceEth = weiToEth(avgPrice) * 1000;
   const totalPriceEth = weiToEth(totalPrice);
   const { value: quantityValue, unit: quantityUnit } = formatQuantity(quantity);
 
@@ -60,9 +59,15 @@ export async function GET(request) {
       `,
     });
 
-    return NextResponse.json({ message: "Email sent successfully" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Email sent successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error sending email:", error);
-    return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to send email" },
+      { status: 500 }
+    );
   }
 }

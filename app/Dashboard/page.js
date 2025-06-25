@@ -78,6 +78,7 @@ function Dashboard() {
   const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
   const [ethOutputUnitTypetoSell, setEthOutputUnitTypetoSell] = useState("ETH"); // or "GWEI", "WEI"
 
+  const [isSwapped, setIsSwapped] = useState(false);
   const { writeContract } = useWriteContract();
 
   const { data: balance } = useBalance({
@@ -747,7 +748,7 @@ function Dashboard() {
                         ? ethAmounttoBuy
                         : "0.00"
                     }
-                    onChange={(e) => setEthAmounttoBuy(e.target.value || "")}
+                    onChange={(e) => setEthAmounttoBuy(e.target.value)}
                   />
 
                   <select
@@ -834,8 +835,8 @@ function Dashboard() {
 
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
-                    <strong>Buying Price:&nbsp;</strong>ETH&nbsp;
-                    {Number(convertedEth).toFixed(4)}/gm
+                    <strong>Buying Price:&nbsp;</strong>
+                    {Number(convertedEth).toFixed(4)}&nbsp;ETH/gm
                   </p>
                   <p>
                     <strong>Wallet Balance:</strong>&nbsp;
@@ -875,12 +876,17 @@ function Dashboard() {
                     type="text"
                     placeholder="0"
                     className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                    value={
+                      typeof goldAmounttoSell === "string"
+                        ? goldAmounttoSell
+                        : "0.00"
+                    }
                     onChange={(e) => setGoldAmounttoSell(e.target.value)}
                   />
                   <select
-                    value={goldToEthUnitTypetoSell ?? "GM"}
+                    value={goldToEthUnitTypetoSell}
                     onChange={(e) => setGoldToEthUnitTypetoSell(e.target.value)}
-                    id="currency"
+                    id="quantity"
                     className="bg-violet-500 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
                   >
                     <option>MG</option>
@@ -888,7 +894,12 @@ function Dashboard() {
                   </select>
                 </div>
                 <div className="flex mt-1 text-gray-600">
-                  <p>{Number(convertedEthtoSell).toFixed(3)}&nbsp;ETH</p>
+                  <p>
+                    {convertedEthtoSell
+                      ? Number(convertedEthtoSell).toFixed(3)
+                      : "0.00"}
+                    &nbsp;ETH
+                  </p>
                 </div>
 
                 {isSellOrderPending ? (
@@ -955,8 +966,8 @@ function Dashboard() {
 
                 <div className="flex flex-col items-center justify-center py-3 text-gray-600">
                   <p>
-                    <strong>Selling Price:&nbsp;</strong>ETH&nbsp;
-                    {Number(convertedEth).toFixed(4)}/gm
+                    <strong>Selling Price:&nbsp;</strong>
+                    {Number(convertedEth).toFixed(4)}&nbsp;ETH/gm
                   </p>
                   <p>
                     <strong>Current Aurika Balance:</strong>&nbsp;

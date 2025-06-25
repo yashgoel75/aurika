@@ -17,8 +17,8 @@ export async function GET(request) {
   const email = request.nextUrl.searchParams.get("email");
   const avgPrice = request.nextUrl.searchParams.get("avgPrice");
   const quantity = request.nextUrl.searchParams.get("quantity");
-    const totalPrice = request.nextUrl.searchParams.get("totalPrice");
-    const hash = request.nextUrl.searchParams.get("hash");
+  const totalPrice = request.nextUrl.searchParams.get("totalPrice");
+  const hash = request.nextUrl.searchParams.get("hash");
 
   if (!email) {
     return NextResponse.json({ error: "Missing email" }, { status: 400 });
