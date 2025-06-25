@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import "./page.css";
 import Image from "next/image";
 import AurikaGoldCoin from "@/public/AurikaGoldCoin.png";
-
+import Footer from "../Footer/page";
 import { aurikaAbi } from "../constants/aurikaAbi";
 import { useContractRead } from "wagmi";
 
@@ -411,6 +411,7 @@ function Portfolio() {
           </div>
         </div>
       </div>
+      <Footer></Footer>
     </>
   );
 }

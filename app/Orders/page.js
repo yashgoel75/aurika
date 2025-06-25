@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./page.css";
+import Footer from "../Footer/page";
 
 function Portfolio() {
   const router = useRouter();
@@ -66,11 +67,11 @@ function Portfolio() {
   return (
     <>
       <Header />
-      <div className="bg-gray-100">
+      <div className="bg-gray-100 min-h-[calc(100vh-64px)]">
         <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-100">
           <h1 className="text-[38px] font-[550] mb-4">Orders</h1>
         </div>
-        <div className="bg-gray-100 w-92/100 m-auto min-h-screen">
+        <div className="bg-gray-100 w-92/100 m-auto">
           <div className="w-92/100 m-auto">
             {orders.length > 0 ? (
               <table className="w-full border-collapse">
@@ -162,6 +163,7 @@ function Portfolio() {
           </div>
         </div>
       </div>
+      <Footer></Footer>
     </>
   );
 }

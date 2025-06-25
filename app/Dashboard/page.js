@@ -27,6 +27,7 @@ import Header from "../Header/page";
 import AurikaGoldCoin from "@/public/AurikaGoldCoin.png";
 import EthereumCoin from "@/public/EthereumCoin.png";
 import "./page.css";
+import Footer from "../Footer/page";
 
 function Dashboard() {
   //styles
@@ -1118,7 +1119,7 @@ function Dashboard() {
           </div>
         )}
 
-        <div className="min-h-screen bg-gray-100"></div>
+        <Footer></Footer>
       </div>
     </>
   );
