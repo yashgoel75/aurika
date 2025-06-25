@@ -30,6 +30,8 @@ import "./page.css";
 import Footer from "../Footer/page";
 
 function Dashboard() {
+  if (typeof window === "undefined") return null;
+
   //styles
   const imageStyle = {
     borderRadius: "50%",
