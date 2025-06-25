@@ -17,7 +17,6 @@ import { useAccount } from "wagmi";
 import { useBalance } from "wagmi";
 import { useContractRead } from "wagmi";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { getWalletClient } from '@wagmi/core';
 
 //viem
 import { publicClient, walletClient, getAccount } from "../../viemConfig";
