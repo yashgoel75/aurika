@@ -1,7 +1,7 @@
 import { connectMongoDB } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import User from "@/models/aurika";
-
+export const runtime = "nodejs";
 export async function POST(request) {
   const { action, walletAddress, name, email, password, pin, order } =
     await request.json();
