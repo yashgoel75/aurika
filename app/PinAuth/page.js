@@ -61,6 +61,7 @@ function SignIn() {
       const data = await res.json();
       console.log(data.pin);
       if (data.pin.toString() === inputField.value.toString()) {
+        localStorage.setItem("LoggedIn", "true");
         router.push("/Dashboard");
       } else {
         alert("Incorrect PIN");
