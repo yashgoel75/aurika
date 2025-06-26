@@ -2,8 +2,6 @@
 
 **Aurika** is a Web3-based platform that enables users to buy and sell digital gold using ETH on the Ethereum Sepolia testnet. It brings the timeless value of gold into the decentralized world — combining smart contracts, real-time pricing, and a clean user experience.
 
----
-
 ## 🌟 Features
 
 - **Real-Time Pricing:** Fetches current USD/ETH and XAU/USD prices to calculate live gold rates
@@ -21,16 +19,12 @@
   - Email notifications for registration, buy, and sell events
 - **Off-chain User Data:** User emails and PINs stored securely in MongoDB
 
----
-
 ## 🛠 Tech Stack
 
 - **Frontend:** Next.js, React, Tailwind CSS
 - **Blockchain:** Solidity, Viem, ethers.js, Wagmi, MetaMask, RainbowKit
 - **Backend & Infra:** MongoDB, Resend (email API)
 - **Network:** Ethereum Sepolia Testnet
-
----
 
 ## 📂 Live Project
 
