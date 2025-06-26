@@ -2,7 +2,7 @@ import "./globals.css";
 import App from "./providers";
 
 export const metadata = {
-  title: "Aurika",
+  title: "Aurika - Digital Gold on the Blockchain",
   description: "Purchasing Digital Gold Made Easy",
 };
 

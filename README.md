@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Aurika – Decentralized Digital Gold Platform
 
-## Getting Started
+**Aurika** is a Web3-based platform that enables users to buy and sell digital gold using ETH on the Ethereum Sepolia testnet. It brings the timeless value of gold into the decentralized world — combining smart contracts, real-time pricing, and a clean user experience.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌟 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Real-Time Pricing:** Fetches current USD/ETH and XAU/USD prices to calculate live gold rates
+- **Buy & Sell Gold:** Users can invest in digital gold using SepoliaETH and sell it anytime at the latest price
+- **Two Smart Contracts:**  
+  - One for price feed integration  
+  - One for storing and managing user asset balances
+- **Swap ETH ↔ Gold:** Instantly convert between ETH and gold within the platform
+- **Portfolio Management:** Track holdings and view live profit/loss on the dashboard
+- **Secure Access:**  
+  - Email verification with OTP  
+  - PIN-based login authentication
+- **Transaction Tracking:**  
+  - In-app and email links to Etherscan for every transaction  
+  - Email notifications for registration, buy, and sell events
+- **Off-chain User Data:** User emails and PINs stored securely in MongoDB
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠 Tech Stack
 
-## Learn More
+- **Frontend:** Next.js, React, Tailwind CSS
+- **Blockchain:** Solidity, Viem, ethers.js, Wagmi, MetaMask, RainbowKit
+- **Backend & Infra:** MongoDB, Resend (email API)
+- **Network:** Ethereum Sepolia Testnet
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📂 Live Project
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Website:** https://aurika.yashgoel.me/
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🙌 Feedback
+Feel free to open issues or suggest improvements. Bug reports, feature ideas, and testing feedback are always welcome.  
