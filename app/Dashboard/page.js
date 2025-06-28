@@ -184,11 +184,12 @@ function Dashboard() {
       const invested = userData[0].toString();
       const quantity = userData[1].toString();
       setPortfolioValue(invested);
-      setQuantity(quantity);
       console.log("Invested:", invested);
       console.log("Quantity:", quantity);
 
       const quantityInMg = quantity / 1000;
+      setQuantity(quantityInMg);
+
       if (quantityInMg < 1000) {
         setPortfolioValueUnit(false);
       } else {
