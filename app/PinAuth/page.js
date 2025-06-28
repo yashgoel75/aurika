@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import Image from "next/image";
 import logo from "@/public/AurikaLogo.png";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./page.css";
 
 function SignIn() {
@@ -52,6 +52,18 @@ function SignIn() {
     console.log(inputField.value);
   }
 
+  const [name, setName] = useState("");
+  useEffect(() => {
+    async function getName() {
+      const res = await fetch(`/api/users?walletAddress=${account.address}`);
+      if (res.ok) {
+        const data = await res.json();
+        setName(data.name);
+      }
+    }
+    getName();
+  }, []);
+
   async function handlePinSubmit(e) {
     e.preventDefault();
     const inputField = document.querySelector('input[type="password"]');
@@ -79,7 +91,7 @@ function SignIn() {
           className="mb-4"
           priority
         />
-        <h1 className="text-2xl font-bold mb-4">Welcome back, </h1>
+        <h1 className="text-2xl font-bold mb-4">Welcome back, {name}</h1>
 
         <div className="bg-white p-8 rounded-lg w-90 opacity-90 shadow-lg">
           <form className="flex flex-col">

@@ -10,7 +10,6 @@ import { parseUnits } from "ethers";
 import { aurikaAbi } from "../constants/aurikaAbi";
 import { parseEther } from "viem";
 
-import { getPriceAbi } from "../constants/getPriceAbi";
 import { BigNumber } from "ethers";
 
 import { useAccount } from "wagmi";
@@ -19,7 +18,12 @@ import { useContractRead } from "wagmi";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 //viem
-import { publicClient, walletClient, getAccount, getWalletClient } from "../../viemConfig";
+import {
+  publicClient,
+  walletClient,
+  getAccount,
+  getWalletClient,
+} from "../../viemConfig";
 
 //local imports
 import Image from "next/image";
@@ -39,8 +43,7 @@ function Dashboard() {
 
   //constants/variables
   const router = useRouter();
-  const AURIKA_ADDRESS = "0x26B0E24796a52fd8D6D25E165C69f1D3b78Ec859";
-  const GETPRICE_ADDRESS = "0x6d2C92EbCCcF6347EbeDef5e8961569914c3e091";
+  const AURIKA_ADDRESS = "0x23db61d27894e33657ec690d7447d7c13219aa8a";
   const account = useAccount();
   const { address, isConnected } = useAccount();
   const walletAddress = account.address;
@@ -107,22 +110,11 @@ function Dashboard() {
     args: [address],
   });
 
-  const { data: ethUsdPriceRaw } = useContractRead({
-    address: GETPRICE_ADDRESS,
-    abi: getPriceAbi,
-    functionName: "getEthUsd",
+  const { data: averagePrice } = useContractRead({
+    address: AURIKA_ADDRESS,
+    abi: aurikaAbi,
+    functionName: "getAveragePrice",
   });
-
-  const { data: xauUsdPriceRaw } = useContractRead({
-    address: GETPRICE_ADDRESS,
-    abi: getPriceAbi,
-    functionName: "getXauUsd",
-  });
-
-  console.log(ethUsdPriceRaw);
-  console.log(xauUsdPriceRaw);
-
-  //useEffect
 
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
@@ -195,32 +187,18 @@ function Dashboard() {
       setQuantity(quantity);
       console.log("Invested:", invested);
       console.log("Quantity:", quantity);
+
+      const quantityInMg = quantity / 1000;
+      if (quantityInMg < 1000) {
+        setPortfolioValueUnit(false);
+      } else {
+        setPortfolioValueUnit(true);
+      }
     }
   }, [userData]);
 
   useEffect(() => {
-    if (quantity < 1000) {
-      setPortfolioValueUnit(false);
-    } else {
-      setPortfolioValueUnit(true);
-    }
-  });
-
-  useEffect(() => {
-    if (ethUsdPriceRaw) {
-      setEthUsdPrice(Number(ethUsdPriceRaw) / 1e8); // or 1e18 based on your contract's decimal
-    }
-
-    if (xauUsdPriceRaw) {
-      setXauUsdPrice(Number(xauUsdPriceRaw) / 1e8);
-    }
-  }, [ethUsdPriceRaw, xauUsdPriceRaw]);
-
-  console.log("ETH/USD Price: ", ethUsdPrice);
-  console.log("XAU/USD Price: ", xauUsdPrice);
-
-  useEffect(() => {
-    if (!ethAmount || !ethUsdPrice || !xauUsdPrice) {
+    if (!ethAmount) {
       setConvertedGold("");
       return;
     }
@@ -238,10 +216,9 @@ function Dashboard() {
         ethInBase = Number(ethAmount);
     }
 
-    const usdValue = ethInBase * ethUsdPrice;
-
-    const xauPerGram = xauUsdPrice / 31.1035;
-    const goldInGram = usdValue / xauPerGram;
+    const goldInMgPerEth = Number(averagePrice) / 1000;
+    const goldInGramPerEth = Number(goldInMgPerEth) / 1000;
+    const goldInGram = goldInGramPerEth * ethInBase;
 
     const finalGoldValue =
       goldUnitType === "MG"
@@ -249,10 +226,10 @@ function Dashboard() {
         : goldInGram.toFixed(6);
 
     setConvertedGold(finalGoldValue);
-  }, [ethAmount, ethUnitType, goldUnitType, ethUsdPrice, xauUsdPrice]);
+  }, [ethAmount, ethUnitType, goldUnitType]);
 
   useEffect(() => {
-    if (!ethAmounttoBuy || !ethUsdPrice || !xauUsdPrice) {
+    if (!ethAmounttoBuy) {
       setConvertedGoldtoBuy("");
       return;
     }
@@ -270,10 +247,9 @@ function Dashboard() {
         ethInBase = Number(ethAmounttoBuy);
     }
 
-    const usdValuetoBuy = ethInBase * ethUsdPrice;
-
-    const xauPerGram = xauUsdPrice / 31.1035;
-    const goldInGram = usdValuetoBuy / xauPerGram;
+    const goldInMgPerEth = Number(averagePrice) / 1000;
+    const goldInGramPerEth = Number(goldInMgPerEth) / 1000;
+    const goldInGram = goldInGramPerEth * ethInBase;
 
     const finalGoldValuetoBuy =
       goldUnitTypetoBuy === "MG"
@@ -281,30 +257,21 @@ function Dashboard() {
         : goldInGram.toFixed(6);
 
     setConvertedGoldtoBuy(finalGoldValuetoBuy);
-  }, [
-    ethAmounttoBuy,
-    ethUnitTypetoBuy,
-    goldUnitTypetoBuy,
-    ethUsdPrice,
-    xauUsdPrice,
-  ]);
+  }, [ethAmounttoBuy, ethUnitTypetoBuy, goldUnitTypetoBuy]);
 
   useEffect(() => {
-    if (!goldAmount || !ethUsdPrice || !xauUsdPrice) {
+    if (!goldAmount) {
       setConvertedEth("");
       return;
     }
-
-    const xauPerGram = xauUsdPrice / 31.1035;
 
     const goldInGrams =
       goldToEthUnitType === "MG"
         ? Number(goldAmount) / 1000
         : Number(goldAmount);
 
-    const usdValue = goldInGrams * xauPerGram;
-
-    const ethValue = usdValue / ethUsdPrice;
+    const EthPerGram = (1 * 1000 * 1000) / Number(averagePrice);
+    const ethValue = EthPerGram * goldInGrams;
 
     let finalEth;
     switch (ethOutputUnitType) {
@@ -320,69 +287,32 @@ function Dashboard() {
     }
 
     setConvertedEth(finalEth.toFixed(8));
-  }, [
-    goldAmount,
-    goldToEthUnitType,
-    ethOutputUnitType,
-    ethUsdPrice,
-    xauUsdPrice,
-  ]);
+  }, [goldAmount, goldToEthUnitType, ethOutputUnitType]);
 
   useEffect(() => {
-    if (!goldAmount || !ethUsdPrice || !xauUsdPrice) {
+    if (!goldAmount) {
       setBuyingPrice("");
       return;
     }
 
-    const xauPerGram = xauUsdPrice / 31.1035;
-
-    const goldInGrams =
-      goldToEthUnitTypeBuyingPrice === "MG"
-        ? Number(goldAmountBuyingPrice) / 1000
-        : Number(goldAmountBuyingPrice);
-
-    const usdValue = goldInGrams * xauPerGram;
-
-    const ethValue = usdValue / ethUsdPrice;
-
-    let finalEth;
-    switch (ethOutputUnitTypeBuyingPrice) {
-      case "WEI":
-        finalEth = ethValue * 1e18;
-        break;
-      case "GWEI":
-        finalEth = ethValue * 1e9;
-        break;
-      case "ETH":
-      default:
-        finalEth = ethValue;
-    }
-
-    setBuyingPrice(finalEth.toFixed(8));
-  }, [
-    goldAmount,
-    goldToEthUnitType,
-    ethOutputUnitType,
-    ethUsdPrice,
-    xauUsdPrice,
-  ]);
+    const buyingPrice = (1 * 1000 * 1000) / Number(averagePrice);
+    setBuyingPrice(buyingPrice.toFixed(8));
+  }, [goldAmount, goldToEthUnitType, ethOutputUnitType]);
 
   useEffect(() => {
-    if (!goldAmounttoSell || !ethUsdPrice || !xauUsdPrice) {
+    if (!goldAmounttoSell) {
       setConvertedEthtoSell("");
       return;
     }
-
-    const xauPerGram = xauUsdPrice / 31.1035;
 
     const goldInGramstoSell =
       goldToEthUnitTypetoSell === "MG"
         ? Number(goldAmounttoSell) / 1000
         : Number(goldAmounttoSell);
 
-    const usdValue = goldInGramstoSell * xauPerGram;
-
-    const ethValue = usdValue / ethUsdPrice;
+    const goldToSell = goldInGramstoSell;
+    const buyingPrice = (1 * 1000 * 1000) / Number(averagePrice);
+    const ethValue = goldToSell * buyingPrice;
 
     let finalEth;
     switch (ethOutputUnitTypetoSell) {
@@ -485,8 +415,8 @@ function Dashboard() {
       const hash = await walletClient.writeContract({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
-        functionName: "addOrder",
-        args: [true, quantityBigInt, avgPriceBigInt],
+        functionName: "buyOrder",
+        args: [],
         account,
         value: amountInWei,
       });
@@ -579,8 +509,8 @@ function Dashboard() {
       const hash = await walletClient.writeContract({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
-        functionName: "addOrder",
-        args: [false, goldInMg, avgPriceBigInt],
+        functionName: "sellOrder",
+        args: [Number(goldInMg) * 1000],
         account,
       });
 
