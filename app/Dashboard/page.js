@@ -729,7 +729,7 @@ function Dashboard() {
           action: "addOrder",
           walletAddress: walletAddress,
           order: {
-            type: "gift",
+            type: "Gift",
             hash: hash,
             avgPrice: avgPriceBigInt.toString(),
             quantity: quantityBigInt.toString(),
