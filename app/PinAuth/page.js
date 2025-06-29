@@ -55,7 +55,9 @@ function SignIn() {
   const [name, setName] = useState("");
   useEffect(() => {
     async function getName() {
-      const res = await fetch(`/api/users?walletAddress=${account.address}`);
+      const res = await fetch(`/api/users?walletAddress=${account.address}`, {
+              headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+      });
       if (res.ok) {
         const data = await res.json();
         setName(data.name);
@@ -67,7 +69,10 @@ function SignIn() {
   async function handlePinSubmit(e) {
     e.preventDefault();
     const inputField = document.querySelector('input[type="password"]');
-    const res = await fetch(`/api/users?walletAddress=${account.address}`);
+    const res = await fetch(`/api/users?walletAddress=${account.address}`, {
+            headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+
+    });
     console.log(res);
     if (res.ok) {
       const data = await res.json();

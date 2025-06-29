@@ -21,7 +21,10 @@ function Registration() {
   useEffect(() => {
     async function handleAccountNavigation() {
       console.log("Account is connected:", account.address);
-      const res = await fetch(`/api/users?walletAddress=${account.address}`);
+      const res = await fetch(`/api/users?walletAddress=${account.address}`, {
+              headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+
+      });
       const data = await res.json();
       console.log(res);
       if (res.ok && data.exists) {
@@ -181,7 +184,9 @@ function Registration() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
       },
+
       body: JSON.stringify(userData),
     })
       .then((response) => response.json())

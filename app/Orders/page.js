@@ -16,7 +16,9 @@ function Portfolio() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`/api/users?walletAddress=${walletAddress}`);
+      const res = await fetch(`/api/users?walletAddress=${walletAddress}`, {
+      headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+      });
       const data = await res.json();
       if (data.exists) {
         setOrders(data.orders || []);

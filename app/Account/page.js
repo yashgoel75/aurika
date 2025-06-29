@@ -17,7 +17,9 @@ function Account() {
   const [email, setEmail] = useState("");
   useEffect(() => {
     async function fetchUserData() {
-      const res = await fetch(`/api/users?walletAddress=${account.address}`);
+      const res = await fetch(`/api/users?walletAddress=${account.address}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       console.log(res);
       if (res.ok) {
         const data = await res.json();
@@ -27,7 +29,7 @@ function Account() {
       }
     }
     if (account?.address) {
-      fetchUserData();
+      UserData();
     }
   }, [account?.address]);
 

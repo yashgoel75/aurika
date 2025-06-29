@@ -15,9 +15,30 @@ export default function Home() {
   //   router.push("/PinAuth");
   // }
 
+  async function handleLogin() {
+    try {
+      const walletAddress = account.address;
+      const res = await fetch(`/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          walletAddress: walletAddress,
+        }),
+      });
+      console.log("response",res);
+      const data = await res.json();
+      console.log("data",data);
+    
+      localStorage.setItem("token",data.token);
+    } catch (err) {
+      console.error(err);
+    }
+  }
   async function handleAccountNavigation() {
     console.log("Account is connected:", account.address);
-    const res = await fetch(`/api/users?walletAddress=${account.address}`);
+    const res = await fetch(`/api/users?walletAddress=${account.address}`, {
+      headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+    });
     const data = await res.json();
     console.log(res);
     if (res.ok && data.exists) {
@@ -29,6 +50,7 @@ export default function Home() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (account.isConnected) {
+        handleLogin();
         handleAccountNavigation();
       }
     }, 500);
@@ -45,7 +67,11 @@ export default function Home() {
           className="mb-4"
           priority
         />
-        <ConnectButton label="Continue to Aurika" chainStatus="none" accountStatus="avatar"/>
+        <ConnectButton
+          label="Continue to Aurika"
+          chainStatus="none"
+          accountStatus="avatar"
+        />
       </div>
     </>
   );

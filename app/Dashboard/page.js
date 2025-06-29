@@ -47,19 +47,18 @@ function Dashboard() {
   const account = useAccount();
   const { address, isConnected } = useAccount();
   const walletAddress = account.address;
-  console.log("Wallet Address: ", walletAddress);
-  console.log(typeof walletAddress);
+  // console.log("Wallet Address: ", walletAddress);
+  // console.log(typeof walletAddress);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [portfolioValue, setPortfolioValue] = useState("0");
   const [portfolioValueUnit, setPortfolioValueUnit] = useState(true);
 
   const [quantity, setQuantity] = useState("0");
-  const [ethUsdPrice, setEthUsdPrice] = useState("0");
-  const [xauUsdPrice, setXauUsdPrice] = useState("0");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [buyButton, setBuyButton] = useState(true);
   const [sellButton, setSellButton] = useState(false);
+  const [giftButton, setGiftButton] = useState(false);
 
   const [ethAmount, setEthAmount] = useState("0.05");
   const [ethUnitType, setEthUnitType] = useState("ETH");
@@ -70,6 +69,11 @@ function Dashboard() {
   const [ethUnitTypetoBuy, setEthUnitTypetoBuy] = useState("ETH");
   const [goldUnitTypetoBuy, setGoldUnitTypetoBuy] = useState("MG");
   const [convertedGoldtoBuy, setConvertedGoldtoBuy] = useState("");
+
+  const [ethAmounttoGift, setEthAmounttoGift] = useState("0.05");
+  const [ethUnitTypetoGift, setEthUnitTypetoGift] = useState("ETH");
+  const [goldUnitTypetoGift, setGoldUnitTypetoGift] = useState("MG");
+  const [convertedGoldtoGift, setConvertedGoldtoGift] = useState("");
 
   const [goldAmount, setGoldAmount] = useState("1");
   const [convertedEth, setConvertedEth] = useState("");
@@ -88,6 +92,7 @@ function Dashboard() {
   const [goldToEthUnitTypetoSell, setGoldToEthUnitTypetoSell] = useState("GM"); // or "MG"
   const [ethOutputUnitTypetoSell, setEthOutputUnitTypetoSell] = useState("ETH"); // or "GWEI", "WEI"
 
+  const [walletAddressToGift, setWalletAddressToGift] = useState("");
   const [isSwapped, setIsSwapped] = useState(false);
   const { writeContract } = useWriteContract();
   const [isVisible, setIsVisible] = useState(false);
@@ -157,7 +162,9 @@ function Dashboard() {
 
   useEffect(() => {
     async function fetchUserData() {
-      const res = await fetch(`/api/users?walletAddress=${address}`);
+      const res = await fetch(`/api/users?walletAddress=${address}`, {
+              headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+      });
       if (res.ok) {
         const data = await res.json();
         setName(data.name);
@@ -184,8 +191,6 @@ function Dashboard() {
       const invested = userData[0].toString();
       const quantity = userData[1].toString();
       setPortfolioValue(invested);
-      console.log("Invested:", invested);
-      console.log("Quantity:", quantity);
 
       const quantityInMg = quantity / 1000;
       setQuantity(quantityInMg);
@@ -197,6 +202,18 @@ function Dashboard() {
       }
     }
   }, [userData]);
+
+    const [theme, setTheme] = useState(false);
+  
+  
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    if (theme === "light") {
+      setTheme("light");
+    } else {
+      setTheme("light");
+    }
+  })
 
   useEffect(() => {
     if (!ethAmount) {
@@ -227,7 +244,7 @@ function Dashboard() {
         : goldInGram.toFixed(6);
 
     setConvertedGold(finalGoldValue);
-  }, [ethAmount, ethUnitType, goldUnitType]);
+  }, [ethAmount, ethUnitType, goldUnitType, averagePrice]);
 
   useEffect(() => {
     if (!ethAmounttoBuy) {
@@ -258,7 +275,38 @@ function Dashboard() {
         : goldInGram.toFixed(6);
 
     setConvertedGoldtoBuy(finalGoldValuetoBuy);
-  }, [ethAmounttoBuy, ethUnitTypetoBuy, goldUnitTypetoBuy]);
+  }, [ethAmounttoBuy, ethUnitTypetoBuy, goldUnitTypetoBuy, averagePrice]);
+
+  useEffect(() => {
+    if (!ethAmounttoGift) {
+      setConvertedGoldtoGift("");
+      return;
+    }
+
+    let ethInBase;
+    switch (ethUnitTypetoGift) {
+      case "WEI":
+        ethInBase = Number(ethAmounttoGift) / 1e18;
+        break;
+      case "GWEI":
+        ethInBase = Number(ethAmounttoGift) / 1e9;
+        break;
+      case "ETH":
+      default:
+        ethInBase = Number(ethAmounttoGift);
+    }
+
+    const goldInMgPerEth = Number(averagePrice) / 1000;
+    const goldInGramPerEth = Number(goldInMgPerEth) / 1000;
+    const goldInGram = goldInGramPerEth * ethInBase;
+
+    const finalGoldValuetoGift =
+      goldUnitTypetoGift === "MG"
+        ? (goldInGram * 1000).toFixed(3)
+        : goldInGram.toFixed(6);
+
+    setConvertedGoldtoGift(finalGoldValuetoGift);
+  }, [ethAmounttoGift, ethUnitTypetoGift, goldUnitTypetoGift, averagePrice]);
 
   useEffect(() => {
     if (!goldAmount) {
@@ -288,7 +336,7 @@ function Dashboard() {
     }
 
     setConvertedEth(finalEth.toFixed(8));
-  }, [goldAmount, goldToEthUnitType, ethOutputUnitType]);
+  }, [goldAmount, goldToEthUnitType, ethOutputUnitType, averagePrice]);
 
   useEffect(() => {
     if (!goldAmount) {
@@ -298,7 +346,7 @@ function Dashboard() {
 
     const buyingPrice = (1 * 1000 * 1000) / Number(averagePrice);
     setBuyingPrice(buyingPrice.toFixed(8));
-  }, [goldAmount, goldToEthUnitType, ethOutputUnitType]);
+  }, [goldAmount, goldToEthUnitType, ethOutputUnitType, averagePrice]);
 
   useEffect(() => {
     if (!goldAmounttoSell) {
@@ -333,8 +381,7 @@ function Dashboard() {
     goldAmounttoSell,
     goldToEthUnitTypetoSell,
     ethOutputUnitTypetoSell,
-    ethUsdPrice,
-    xauUsdPrice,
+    averagePrice,
   ]);
 
   //functions
@@ -350,14 +397,48 @@ function Dashboard() {
 
   function handleBuyButton() {
     setSellButton(false);
+    setGiftButton(false);
     setBuyButton(true);
   }
 
   function handleSellButton() {
     setBuyButton(false);
+    setGiftButton(false);
     setSellButton(true);
   }
 
+  function handleGiftButton() {
+    setBuyButton(false);
+    setSellButton(false);
+    setGiftButton(true);
+  }
+
+  const [walletAddressToGiftVerified, setWalletAddressToGiftVerified] =
+    useState(false);
+  const [walletAddressToGiftNotVerified, setWalletAddressToGiftNotVerified] =
+    useState(false);
+
+  async function handleWalletAddressToGiftVerification() {
+    try {
+      const res = await fetch(
+        `/api/users?walletAddress=${walletAddressToGift}`, {
+                headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+
+        }
+      );
+      const data = await res.json();
+
+      if (res.ok && data.exists) {
+        setWalletAddressToGiftNotVerified(false);
+        setWalletAddressToGiftVerified(true);
+      } else {
+        setWalletAddressToGiftVerified(false);
+        setWalletAddressToGiftNotVerified(true);
+      }
+    } catch (err) {
+      console.err(err);
+    }
+  }
   function getAmoutInWei() {
     const totalEth = ethAmounttoBuy;
 
@@ -373,6 +454,30 @@ function Dashboard() {
     } else if (ethUnitTypetoBuy === "GWEI") {
       amountInWei = parseUnits(totalEth, 9); // 1 GWEI = 10^9 wei
     } else if (ethUnitTypetoBuy === "WEI") {
+      amountInWei = BigInt(totalEth);
+    } else {
+      console.warn("Unsupported ETH unit type");
+      return BigInt(0);
+    }
+
+    return amountInWei;
+  }
+
+  function getAmoutInWeiToGift() {
+    const totalEth = ethAmounttoGift;
+
+    if (!totalEth || isNaN(Number(totalEth))) {
+      console.warn("Invalid ETH amount");
+      return BigInt(0);
+    }
+
+    let amountInWei;
+
+    if (ethUnitTypetoGift === "ETH") {
+      amountInWei = parseUnits(totalEth, 18); // 1 ETH = 10^18 wei
+    } else if (ethUnitTypetoGift === "GWEI") {
+      amountInWei = parseUnits(totalEth, 9); // 1 GWEI = 10^9 wei
+    } else if (ethUnitTypetoGift === "WEI") {
       amountInWei = BigInt(totalEth);
     } else {
       console.warn("Unsupported ETH unit type");
@@ -440,7 +545,8 @@ function Dashboard() {
       console.log(account.address);
       const response = await fetch("/api/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}`},
+
         body: JSON.stringify({
           action: "addOrder",
           walletAddress: walletAddress,
@@ -529,7 +635,8 @@ function Dashboard() {
 
       const response = await fetch("/api/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}`},
+
         body: JSON.stringify({
           action: "addOrder",
           walletAddress: walletAddress,
@@ -558,10 +665,101 @@ function Dashboard() {
     }
   };
 
+  const [isGiftOrderPending, setIsGiftOrderPending] = useState(false);
+  const [isGiftOrderSuccess, setIsGiftOrderSuccess] = useState(false);
+  const [isGiftOrderFailed, setIsGiftOrderFailed] = useState(false);
+  const [isGiftHashReady, setIsGiftHashReady] = useState(false);
+  const [GiftOrderHash, setGiftOrderHash] = useState("");
+
+  const handleGiftOrder = async () => {
+    try {
+      setIsGiftOrderPending(true);
+      setIsGiftOrderFailed(false);
+      setIsGiftOrderSuccess(false);
+      setIsGiftHashReady(false);
+
+      const account = await getAccount();
+      if (!account) throw new Error("No wallet connected");
+
+      // Convert gold quantity to milligrams (BigInt)
+      const quantityBigInt = BigInt(Math.round(Number(convertedGoldtoGift))); // in mg
+      if (quantityBigInt === BigInt(0))
+        throw new Error("Quantity cannot be zero");
+
+      // Get total ETH amount in wei (BigInt)
+      const amountInWei = getAmoutInWeiToGift();
+      if (amountInWei === BigInt(0))
+        throw new Error("ETH amount cannot be zero");
+
+      // Calculate average price in wei per mg
+      const avgPriceBigInt = amountInWei / quantityBigInt;
+
+      // Execute the contract write
+      const walletClient = await getWalletClient();
+      const hash = await walletClient.writeContract({
+        address: AURIKA_ADDRESS,
+        abi: aurikaAbi,
+        functionName: "gift",
+        args: [walletAddressToGift],
+        account,
+        value: amountInWei,
+      });
+
+      console.log("Gift order transaction hash:", hash);
+      setGiftOrderHash(hash);
+
+      // Wait for transaction receipt
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      setIsGiftHashReady(true);
+
+      setIsGiftOrderPending(false);
+      setIsGiftOrderSuccess(true);
+      console.log("Gift order transaction receipt:", receipt);
+
+      // Refetch user data
+      await refetchUserData();
+
+      // Send order to backend as strings
+      console.log(account.address);
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json","Authorization": `Bearer ${localStorage.getItem("token")}`},
+
+        body: JSON.stringify({
+          action: "addOrder",
+          walletAddress: walletAddress,
+          order: {
+            type: "gift",
+            hash: hash,
+            avgPrice: avgPriceBigInt.toString(),
+            quantity: quantityBigInt.toString(),
+            totalValue: amountInWei.toString(),
+          },
+        }),
+      });
+
+      const data = await response.json();
+      fetch(
+        `api/order/buy?name=${name}&email=${email}&avgPrice=${avgPriceBigInt.toString()}&quantity=${quantityBigInt.toString()}&totalPrice=${amountInWei.toString()}&hash=${hash}`
+      );
+
+      console.log(data);
+      // if (!response.ok) {
+      //   throw new Error(data.error || "Failed to save order");
+      // }
+    } catch (err) {
+      console.error("Buy transaction failed:", err.message);
+      setIsGiftOrderPending(false);
+      setIsGiftOrderFailed(true);
+    }
+  };
+
   return (
     <>
-      <div className="bg-gray-100">
-        <Header />
+      <div className={`${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'} relative`}>
+        <div className="sticky top-0 z-20 w-full">
+          <Header />
+          </div>
         {showDisclaimer ? (
           <div className="disclaimer flex flex-col">
             <div className="disclaimer-text  bg-gray-200 p-4 rounded-lg shadow-md m-4">
@@ -596,17 +794,20 @@ function Dashboard() {
           </div>
         ) : null}
 
-        <div className="bg-gray-100 pt-3">
-          <div className="bg-gray-100 m-auto w-92/100 px-8 py-4 relative z-10">
-            <div className="flex flex-row">
-              <h1 className="text-xl font-bold mb-1">Welcome back,&nbsp;</h1>
+        <div className={`${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'} pt-3`}>
+          <div className={`${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'} m-auto w-92/100 px-8 py-4 relative z-10`}>
+            <div className={`${theme === "light" ? 'text-gray-800' : 'text-gray-50'} flex flex-row`}>
+              <h1 className={`text-xl font-bold mb-1`}>Welcome back,&nbsp;</h1>
               <h1 className="text-xl">{name}</h1>
             </div>
-            <h1 className="text-xl mb-5 mt-1 flex items-center">
+            <h1 className={`${theme === "light" ? 'text-gray-800' : 'text-gray-50'} text-xl mb-5 mt-1 flex items-center`}>
               <strong>Your Portfolio:&nbsp;</strong>
               {isVisible ? (
                 <>
-                  {quantity < 1000 ? quantity : quantity / 1000}&nbsp;
+                  {quantity < 1000
+                    ? quantity
+                    : Number(quantity / 1000).toFixed(3)}
+                  &nbsp;
                   {portfolioValueUnit ? "gm" : "mg"}&nbsp;
                   <svg
                     onClick={() => setIsVisible(false)}
@@ -615,7 +816,7 @@ function Dashboard() {
                     height="24px"
                     viewBox="0 -960 960 960"
                     width="24px"
-                    fill="#000000"
+                    fill={`${theme === "light" ? '#000000' : '#ffffff'}`}
                   >
                     <path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z" />
                   </svg>
@@ -630,7 +831,7 @@ function Dashboard() {
                     height="24px"
                     viewBox="0 -960 960 960"
                     width="24px"
-                    fill="#000000"
+                    fill={`${theme === "light" ? '#000000' : '#ffffff'}`}
                   >
                     <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
                   </svg>
@@ -644,7 +845,7 @@ function Dashboard() {
         {/* <div className="account-container pl-8 pt-8 bg-gray-100">
           <h1 className="text-[24px] font-onest font-bold mb-2">Gold Locker</h1>
           </div> */}
-        <div className="flex p-4 pt-5 w-92/100 m-auto justify-center bg-gray-100">
+        <div className={`flex p-4 pt-5 w-92/100 m-auto justify-center ${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'}`}>
           <div className="flex items-center w-95/100 m-auto">
             <Image
               className="bg-white shadow-lg"
@@ -781,11 +982,18 @@ function Dashboard() {
           </button>
           <button
             onClick={handleSellButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-500 text-lg mt-6 ${sellButton ? `bg-violet-500` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 outline-1 outline-violet-500 text-lg mt-6 ${sellButton ? `bg-violet-500` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
           >
             Sell
           </button>
+          <button
+            onClick={handleGiftButton}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-500 text-lg mt-6 ${giftButton ? `bg-violet-500` : `bg-transparent`} ${giftButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+          >
+            Gift
+          </button>
         </div>
+
         {buyButton ? (
           <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
             <div className="px-5 py-4 border-b border-gray-200">
@@ -919,7 +1127,9 @@ function Dashboard() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : null}
+
+        {sellButton ? (
           <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
             <div className="px-5 py-4 border-b border-gray-200">
               <h1 className="text-2xl font-semibold text-gray-800 font-onest">
@@ -1049,9 +1259,213 @@ function Dashboard() {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
-        <div className="min-h-screen bg-gray-100"></div>
+        {giftButton ? (
+          <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
+            <div className="px-5 py-4 border-b border-gray-200">
+              <h1 className="text-2xl font-semibold text-gray-800 font-onest">
+                Gifting through Aurika
+              </h1>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 px-5 py-5">
+              <div className="w-full">
+                <label className="text-lg font-medium text-gray-700 min-w-max">
+                  SepoliaETH
+                </label>
+
+                <div className="flex mt-1 w-full rounded-lg overflow-hidden border border-violet-500 focus-within:ring-2 focus-within:ring-violet-400">
+                  <input
+                    type="text"
+                    placeholder="0"
+                    className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                    value={
+                      typeof ethAmounttoGift === "string"
+                        ? ethAmounttoGift
+                        : "0.00"
+                    }
+                    onChange={(e) => setEthAmounttoGift(e.target.value)}
+                  />
+
+                  <select
+                    id="currency"
+                    className="bg-linear-to-bl from-violet-400 to-purple-700 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    value={ethUnitTypetoGift}
+                    onChange={(e) => setEthUnitTypetoGift(e.target.value)}
+                  >
+                    <option>WEI</option>
+                    <option>GWEI</option>
+                    <option>ETH</option>
+                  </select>
+                </div>
+                <div className={`flex mt-1 text-gray-600`}>
+                  <p>
+                    {convertedGoldtoGift
+                      ? Number(convertedGoldtoGift) < 1000
+                        ? `${Number(convertedGoldtoGift).toFixed(2)} mg`
+                        : `${(Number(convertedGoldtoGift) / 1000).toFixed(2)} gm`
+                      : "0.00"}
+                  </p>
+                </div>
+
+                <div className="w-full mt-2">
+                  <label className="text-lg font-medium text-gray-700 min-w-max">
+                    Wallet Address
+                  </label>
+
+                  <div className="flex mt-1 w-full rounded-lg overflow-hidden border border-violet-500 focus-within:ring-2 focus-within:ring-violet-400">
+                    <input
+                      type="text"
+                      placeholder="0x"
+                      className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                      onChange={(e) => setWalletAddressToGift(e.target.value)}
+                    />
+                    <button
+                      onClick={handleWalletAddressToGiftVerification}
+                      className="px-3 py-1 rounded-sm bg-linear-to-bl from-violet-400 to-purple-700 text-white m-1 hover:cursor-pointer"
+                    >
+                      Verify
+                    </button>
+                  </div>
+                  {/* <div className="w-40 text-center px-3 py-1 mt-1 rounded-sm text-white bg-violet-500 hover:cursor-pointer">
+                      Import from Walbo
+                  </div> */}
+                </div>
+
+                {walletAddressToGiftVerified ? (
+                  <div className="mt-2 w-full">
+                    <p className="flex justify-center items-center m-auto m-2 bg-green-500 text-green-900 w-full rounded p-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#314D1C"
+                        className="mr-2"
+                      >
+                        <path d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm34-102 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm-42 142 226-226-56-58-170 170-86-84-56 56 142 142Z" />
+                      </svg>
+                      Verified
+                    </p>
+                  </div>
+                ) : null}
+
+                {walletAddressToGiftNotVerified ? (
+                  <div className="mt-2 w-full">
+                    <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-900 w-full rounded p-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#BB271A"
+                        className="mr-2"
+                      >
+                        <path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                      </svg>
+                      Wallet Address not associated with Aurika
+                    </p>
+                  </div>
+                ) : null}
+
+                {isGiftOrderPending ? (
+                  <div className="mt-1">
+                    <p className="flex justify-center items-center m-auto m-2 bg-amber-300 text-yellow-600 w-full rounded p-1">
+                      <svg
+                        className="mr-3 size-5 animate-spin"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-45"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-85"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                      Transaction Pending...
+                    </p>
+                  </div>
+                ) : null}
+
+                {isGiftOrderSuccess ? (
+                  <div className="mt-1">
+                    <p className="flex justify-center items-center m-auto m-2 bg-green-500 text-green-900 w-full rounded p-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#314D1C"
+                        className="mr-2"
+                      >
+                        <path d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm34-102 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm-42 142 226-226-56-58-170 170-86-84-56 56 142 142Z" />
+                      </svg>
+                      Transaction Success
+                    </p>
+                  </div>
+                ) : null}
+
+                {isGiftOrderFailed ? (
+                  <div className="mt-1">
+                    <p className="flex justify-center items-center m-auto m-2 bg-red-400 text-red-800 w-full rounded p-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#BB271A"
+                        className="mr-2"
+                      >
+                        <path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                      </svg>
+                      Transaction Failed
+                    </p>
+                  </div>
+                ) : null}
+
+                {isGiftHashReady ? (
+                  <p className="mt-2">
+                    Transaction Hash: {GiftOrderHash}&nbsp;
+                  </p>
+                ) : null}
+
+                <div className="flex flex-col items-center justify-center py-3 text-gray-600">
+                  <p>
+                    <strong>Buying Price:&nbsp;</strong>
+                    {Number(buyingPrice).toFixed(4)}&nbsp;ETH/gm
+                  </p>
+                  <p>
+                    <strong>Wallet Balance:</strong>&nbsp;
+                    {Number(balance?.formatted).toFixed(2) ?? "0.00"}&nbsp;
+                    {balance?.symbol ?? ""}
+                  </p>
+                </div>
+
+                <div className="flex justify-center text-gray-600">
+                  <button
+                    onClick={handleGiftOrder}
+                    disabled={
+                      isGiftOrderPending || walletAddressToGiftNotVerified
+                    }
+                    className={`${isGiftOrderPending || walletAddressToGiftNotVerified ? "cursor-not-allowed opacity-50" : "hover:cursor-pointer hover:bg-violet-600"} text-lg rounded bg-violet-500 text-white py-1 px-6 transition`}
+                  >
+                    Gift
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className={`min-h-screen ${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'}`}></div>
       </div>
     </>
   );
