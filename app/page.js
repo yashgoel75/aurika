@@ -48,14 +48,16 @@ export default function Home() {
     }
   }
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (account.isConnected) {
-        handleLogin();
-        handleAccountNavigation();
-      }
-    }, 500);
-    return () => clearTimeout(timeout);
-  }, [account.isConnected, router]);
+  const timeout = setTimeout(async () => {
+    if (account.isConnected) {
+      await handleLogin();
+      await handleAccountNavigation();
+    }
+  }, 500);
+
+  return () => clearTimeout(timeout);
+}, [account.isConnected, router]);
+
 
   return (
     <>
