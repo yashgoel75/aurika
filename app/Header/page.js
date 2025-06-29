@@ -200,12 +200,14 @@ function Header() {
             </div>
           </div>
         ) : null}
-        <div className={`${theme === "light" ? "bg-stone-200" : "bg-gray-800"}`}>
+        <div
+          className={`${theme === "light" ? "bg-stone-200" : "bg-gray-800"}`}
+        >
           <div
             className={`flex items-center w-11/12 m-auto py-4 justify-between p-4 ${theme === "light" ? "bg-stone-200" : "bg-gray-800"} text-lg text-white`}
           >
             <Image
-              className="bg-stone-200 rounded-full px-3 shadow-lg"
+              className="bg-stone-200 rounded-full px-3"
               src={logo}
               alt="Aurika Logo"
               width={200}

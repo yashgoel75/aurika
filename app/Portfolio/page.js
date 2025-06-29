@@ -14,7 +14,7 @@ import { useContractRead } from "wagmi";
 
 import { parseUnits } from "ethers";
 import { getPriceAbi } from "../constants/getPriceAbi";
-import { BigNumber } from "ethers";
+import { BigNumber, isBigNumber, formatUnits } from "ethers";
 
 function Portfolio() {
   const router = useRouter();
@@ -73,20 +73,28 @@ function Portfolio() {
 
   // Calculate current portfolio value in USD and ETH
   useEffect(() => {
-  if (quantity && averagePrice) {
-    const investedETH = Number(portfolioValue) / 1e18;
+    if (quantity && averagePrice) {
+      try {
+        const quantityInMicrograms = Number(quantity) * 1000; // quantity in µg
+        const avgPrice = Number(averagePrice); // µg per 1 ETH
 
-    const valueInETH = Number(quantity) / Number(averagePrice);
-    setCurrentValueETH(valueInETH.toFixed(6));
+        if (avgPrice === 0) return; // avoid divide by zero
 
-    const changePercent = (
-      ((valueInETH - investedETH) / investedETH) *
-      100
-    ).toFixed(2);
-    setValueChangePercent(changePercent);
-  }
-}, [quantity, portfolioValue, averagePrice]);
+        const valueInETH = quantityInMicrograms / avgPrice; // ETH = µg / (µg per ETH)
+        setCurrentValueETH(valueInETH.toFixed(6));
 
+        const investedETH = Number(portfolioValue) / 1e18;
+        const changePercent = (
+          ((valueInETH - investedETH) / investedETH) *
+          100
+        ).toFixed(2);
+
+        setValueChangePercent(changePercent);
+      } catch (error) {
+        console.error("Error calculating ETH value:", error);
+      }
+    }
+  }, [quantity, portfolioValue, averagePrice]);
 
   return (
     <>
