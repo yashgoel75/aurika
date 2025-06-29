@@ -130,25 +130,34 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const walletAddress = searchParams.get("walletAddress");
-    await connectMongoDB();
-    const user = verifyToken(request);
-    if (user.walletAddress === walletAddress) {
-      const user = await User.findOne({ walletAddress });
-      return NextResponse.json(
-        {
-          message: user ? "Wallet address found" : "Wallet address not found",
-          exists: !!user,
-          walletAddress: user ? user.walletAddress : null,
-          name: user ? user.name : null,
-          email: user ? user.email : null,
-          pin: user ? user.pin : null,
-          orders: user ? user.orders : [],
-        },
-        { status: 200 }
-      );
-    } else {
-      return NextResponse.json({ error: "Error" }, { status: 401 });
+
+    if (!walletAddress) {
+      return NextResponse.json({ error: "Missing wallet address" }, { status: 400 });
     }
+
+    await connectMongoDB();
+
+    const loggedInUser = verifyToken(request); 
+    const targetUser = await User.findOne({ walletAddress });
+
+    if (!targetUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const isSelf = loggedInUser.walletAddress === walletAddress;
+
+    return NextResponse.json(
+      {
+        message: "Wallet address found",
+        exists: true,
+        walletAddress: targetUser.walletAddress,
+        name: targetUser.name,
+        email: isSelf ? targetUser.email : undefined,
+        pin: isSelf ? targetUser.pin : undefined,
+        orders: isSelf ? targetUser.orders : [],
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
