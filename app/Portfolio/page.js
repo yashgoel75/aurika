@@ -73,20 +73,20 @@ function Portfolio() {
 
   // Calculate current portfolio value in USD and ETH
   useEffect(() => {
-    if (quantity) {
-      // Calculate value in ETH
-      const valueInETH = (averagePrice * quantity) / 1000;
-      setCurrentValueETH(valueInETH);
+  if (quantity && averagePrice) {
+    const investedETH = Number(portfolioValue) / 1e18;
 
-      // Calculate percentage change
-      const investedETH = Number(portfolioValue) / 1e18;
-      const changePercent = (
-        ((Number(valueInETH) - investedETH) / investedETH) *
-        100
-      ).toFixed(2);
-      setValueChangePercent(changePercent);
-    }
-  }, [quantity, portfolioValue]);
+    const valueInETH = Number(quantity) / Number(averagePrice);
+    setCurrentValueETH(valueInETH.toFixed(6));
+
+    const changePercent = (
+      ((valueInETH - investedETH) / investedETH) *
+      100
+    ).toFixed(2);
+    setValueChangePercent(changePercent);
+  }
+}, [quantity, portfolioValue, averagePrice]);
+
 
   return (
     <>

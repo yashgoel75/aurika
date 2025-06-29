@@ -16,22 +16,30 @@ function Account() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   useEffect(() => {
-    async function fetchUserData() {
+  async function fetchUserData() {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const res = await fetch(`/api/users?walletAddress=${account.address}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      console.log(res);
-      if (res.ok) {
-        const data = await res.json();
-        console.log(data.pin);
-        setName(data.name);
-        setEmail(data.email);
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch user data");
       }
+
+      const data = await res.json();
+      setName(data.name);
+      setEmail(data.email);
+    } catch (err) {
+      console.error("Error fetching user data:", err);
     }
-    if (account?.address) {
-      UserData();
-    }
-  }, [account?.address]);
+  }
+
+  if (account?.address) {
+    fetchUserData();
+  }
+}, [account?.address]);
+
 
   return (
     <>
