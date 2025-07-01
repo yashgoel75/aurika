@@ -3,7 +3,6 @@
 //react/next
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
 //wagmi
 import config from "../../config";
 import { parseUnits } from "ethers";
@@ -163,7 +162,7 @@ function Dashboard() {
   useEffect(() => {
     async function fetchUserData() {
       const res = await fetch(`/api/users?walletAddress=${address}`, {
-              headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -203,9 +202,8 @@ function Dashboard() {
     }
   }, [userData]);
 
-    const [theme, setTheme] = useState(false);
-  
-  
+  const [theme, setTheme] = useState(false);
+
   useEffect(() => {
     const theme = localStorage.getItem("theme");
     if (theme === "light") {
@@ -213,7 +211,7 @@ function Dashboard() {
     } else {
       setTheme("light");
     }
-  })
+  });
 
   useEffect(() => {
     if (!ethAmount) {
@@ -413,6 +411,8 @@ function Dashboard() {
     setGiftButton(true);
   }
 
+  function handleImportFromWalbo() {}
+
   const [walletAddressToGiftVerified, setWalletAddressToGiftVerified] =
     useState(false);
   const [walletAddressToGiftNotVerified, setWalletAddressToGiftNotVerified] =
@@ -421,9 +421,9 @@ function Dashboard() {
   async function handleWalletAddressToGiftVerification() {
     try {
       const res = await fetch(
-        `/api/users?walletAddress=${walletAddressToGift}`, {
-                headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
-
+        `/api/users?walletAddress=${walletAddressToGift}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
       const data = await res.json();
@@ -545,7 +545,10 @@ function Dashboard() {
       console.log(account.address);
       const response = await fetch("/api/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}`},
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
 
         body: JSON.stringify({
           action: "addOrder",
@@ -635,7 +638,10 @@ function Dashboard() {
 
       const response = await fetch("/api/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}`},
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
 
         body: JSON.stringify({
           action: "addOrder",
@@ -723,24 +729,28 @@ function Dashboard() {
       console.log(account.address);
       const response = await fetch("/api/users", {
         method: "POST",
-        headers: { "Content-Type": "application/json","Authorization": `Bearer ${localStorage.getItem("token")}`},
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
 
         body: JSON.stringify({
-          action: "addOrder",
+          action: "giftOrder",
           walletAddress: walletAddress,
           order: {
-            type: "Gift",
+            receiverWallet: walletAddressToGift,
+            type: "gift-from",
             hash: hash,
             avgPrice: avgPriceBigInt.toString(),
             quantity: quantityBigInt.toString(),
-            totalValue: amountInWei.toString(),
+            totalValue: (Number(avgPriceBigInt) * Number(quantityBigInt)).toString(),
           },
         }),
       });
 
       const data = await response.json();
       fetch(
-        `api/order/buy?name=${name}&email=${email}&avgPrice=${avgPriceBigInt.toString()}&quantity=${quantityBigInt.toString()}&totalPrice=${amountInWei.toString()}&hash=${hash}`
+        `api/order/gift?name=${name}&email=${email}&receiversAddress=${walletAddressToGift}&avgPrice=${avgPriceBigInt.toString()}&quantity=${quantityBigInt.toString()}&totalPrice=${amountInWei.toString()}&hash=${hash}`
       );
 
       console.log(data);
@@ -756,10 +766,12 @@ function Dashboard() {
 
   return (
     <>
-      <div className={`${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'} relative`}>
+      <div
+        className={`${theme === "light" ? "bg-stone-50" : "bg-gray-800"} relative`}
+      >
         <div className="sticky top-0 z-20 w-full">
           <Header />
-          </div>
+        </div>
         {showDisclaimer ? (
           <div className="disclaimer flex flex-col">
             <div className="disclaimer-text  bg-gray-200 p-4 rounded-lg shadow-md m-4">
@@ -794,13 +806,21 @@ function Dashboard() {
           </div>
         ) : null}
 
-        <div className={`${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'} pt-3`}>
-          <div className={`${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'} m-auto w-92/100 px-8 py-4 relative z-10`}>
-            <div className={`${theme === "light" ? 'text-gray-800' : 'text-gray-50'} flex flex-row`}>
+        <div
+          className={`${theme === "light" ? "bg-stone-50" : "bg-gray-800"} pt-3`}
+        >
+          <div
+            className={`${theme === "light" ? "bg-stone-50" : "bg-gray-800"} m-auto w-92/100 px-8 py-4 relative z-10`}
+          >
+            <div
+              className={`${theme === "light" ? "text-gray-800" : "text-gray-50"} flex flex-row`}
+            >
               <h1 className={`text-xl font-bold mb-1`}>Welcome back,&nbsp;</h1>
               <h1 className="text-xl">{name}</h1>
             </div>
-            <h1 className={`${theme === "light" ? 'text-gray-800' : 'text-gray-50'} text-xl mb-5 mt-1 flex items-center`}>
+            <h1
+              className={`${theme === "light" ? "text-gray-800" : "text-gray-50"} text-xl mb-5 mt-1 flex items-center`}
+            >
               <strong>Your Portfolio:&nbsp;</strong>
               {isVisible ? (
                 <>
@@ -816,7 +836,7 @@ function Dashboard() {
                     height="24px"
                     viewBox="0 -960 960 960"
                     width="24px"
-                    fill={`${theme === "light" ? '#000000' : '#ffffff'}`}
+                    fill={`${theme === "light" ? "#000000" : "#ffffff"}`}
                   >
                     <path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Zm319 93Zm-151 75Z" />
                   </svg>
@@ -831,7 +851,7 @@ function Dashboard() {
                     height="24px"
                     viewBox="0 -960 960 960"
                     width="24px"
-                    fill={`${theme === "light" ? '#000000' : '#ffffff'}`}
+                    fill={`${theme === "light" ? "#000000" : "#ffffff"}`}
                   >
                     <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
                   </svg>
@@ -845,7 +865,9 @@ function Dashboard() {
         {/* <div className="account-container pl-8 pt-8 bg-gray-100">
           <h1 className="text-[24px] font-onest font-bold mb-2">Gold Locker</h1>
           </div> */}
-        <div className={`flex p-4 pt-5 w-92/100 m-auto justify-center ${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'}`}>
+        <div
+          className={`flex p-4 pt-5 w-92/100 m-auto justify-center ${theme === "light" ? "bg-stone-50" : "bg-gray-800"}`}
+        >
           <div className="flex items-center w-95/100 m-auto">
             <Image
               className="bg-white shadow-lg"
@@ -976,19 +998,19 @@ function Dashboard() {
         <div className="flex justify-center">
           <button
             onClick={handleBuyButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-500 text-lg mt-6 ${buyButton ? `bg-violet-500` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-500 text-lg mt-6 ${buyButton ? `bg-violet-500` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out`}
           >
             Buy
           </button>
           <button
             onClick={handleSellButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 outline-1 outline-violet-500 text-lg mt-6 ${sellButton ? `bg-violet-500` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 outline-1 outline-violet-500 text-lg mt-6 ${sellButton ? `bg-violet-500` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out`}
           >
             Sell
           </button>
           <button
             onClick={handleGiftButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-500 text-lg mt-6 ${giftButton ? `bg-violet-500` : `bg-transparent`} ${giftButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-500 text-lg mt-6 ${giftButton ? `bg-violet-500` : `bg-transparent`} ${giftButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out`}
           >
             Gift
           </button>
@@ -1328,9 +1350,12 @@ function Dashboard() {
                       Verify
                     </button>
                   </div>
-                  {/* <div className="w-40 text-center px-3 py-1 mt-1 rounded-sm text-white bg-violet-500 hover:cursor-pointer">
-                      Import from Walbo
-                  </div> */}
+                  <div
+                    onClick={handleImportFromWalbo}
+                    className="w-40 text-center px-3 py-1 mt-1 rounded-sm text-white bg-violet-500 hover:cursor-pointer"
+                  >
+                    Import from Walbo
+                  </div>
                 </div>
 
                 {walletAddressToGiftVerified ? (
@@ -1465,7 +1490,9 @@ function Dashboard() {
           </div>
         ) : null}
 
-        <div className={`min-h-screen ${theme === "light" ? 'bg-stone-100' : 'bg-gray-800'}`}></div>
+        <div
+          className={`min-h-screen ${theme === "light" ? "bg-stone-50" : "bg-gray-800"}`}
+        ></div>
       </div>
     </>
   );

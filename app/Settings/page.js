@@ -5,7 +5,7 @@ function Settings() {
   return (
     <>
       <Header />
-      <div className="settings-container p-8 bg-gray-100 min-h-screen">
+      <div className="settings-container p-8 bg-gray-50 min-h-screen">
         <h1 className="text-3xl font-bold mb-4">Settings</h1>
         <div className="flex items-center mb-4">
           <p className="text-lg">Theme:</p>

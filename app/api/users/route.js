@@ -4,6 +4,7 @@ import User from "@/models/aurika";
 export const runtime = "nodejs";
 import jwt from "jsonwebtoken";
 
+// Token verification
 function verifyToken(req) {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -19,12 +20,14 @@ function verifyToken(req) {
   }
 }
 
+// POST handler
 export async function POST(request) {
   const { action, walletAddress, name, email, password, pin, order } =
     await request.json();
   const user = verifyToken(request);
+
   if (user.walletAddress === walletAddress) {
-    // Handle user creation
+    // Create user
     if (action === "createUser") {
       if (!walletAddress || !name || !email || !password || !pin) {
         return NextResponse.json(
@@ -68,7 +71,7 @@ export async function POST(request) {
       }
     }
 
-    // Handle adding order
+    // Add order
     if (action === "addOrder") {
       if (
         !walletAddress ||
@@ -119,25 +122,100 @@ export async function POST(request) {
       }
     }
 
+    // Gift order
+    if (action === "giftOrder") {
+      if (
+        !walletAddress || // sender's wallet
+        !order.receiverWallet || // receiver's wallet
+        !order.type ||
+        !order.hash ||
+        !order.avgPrice ||
+        !order.quantity ||
+        !order.totalValue
+      ) {
+        return NextResponse.json(
+          { error: "Missing required fields for gift order" },
+          { status: 400 }
+        );
+      }
+
+      try {
+        await connectMongoDB();
+
+        const sender = await User.findOne({ walletAddress });
+        if (!sender) {
+          return NextResponse.json(
+            { error: "Sender not found" },
+            { status: 404 }
+          );
+        }
+
+        const receiver = await User.findOne({ walletAddress: order.receiverWallet });
+        if (!receiver) {
+          return NextResponse.json(
+            { error: "Receiver not found" },
+            { status: 404 }
+          );
+        }
+
+        // Add order to sender
+        sender.orders.push({
+          type: order.type,
+          status: "completed",
+          hash: order.hash,
+          avgPrice: order.avgPrice,
+          quantity: order.quantity,
+          totalValue: order.totalValue,
+        });
+
+        // Add order to receiver
+        receiver.orders.push({
+          type: "gift received",
+          status: "completed",
+          hash: order.hash,
+          avgPrice: order.avgPrice,
+          quantity: order.quantity,
+          totalValue: order.totalValue,
+          });
+
+        await sender.save();
+        await receiver.save();
+
+        return NextResponse.json(
+          { message: "Gift order processed successfully" },
+          { status: 201 }
+        );
+      } catch (error) {
+        console.error("Error processing gift order:", error);
+        return NextResponse.json(
+          { error: "Failed to process gift order" },
+          { status: 500 }
+        );
+      }
+    }
+
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  }
-  else {
-    return NextResponse.json({ error: "Error" }, {status: 401});
+  } else {
+    return NextResponse.json({ error: "Unauthorized request" }, { status: 401 });
   }
 }
 
+// GET handler
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const walletAddress = searchParams.get("walletAddress");
 
     if (!walletAddress) {
-      return NextResponse.json({ error: "Missing wallet address" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing wallet address" },
+        { status: 400 }
+      );
     }
 
     await connectMongoDB();
 
-    const loggedInUser = verifyToken(request); 
+    const loggedInUser = verifyToken(request);
     const targetUser = await User.findOne({ walletAddress });
 
     if (!targetUser) {

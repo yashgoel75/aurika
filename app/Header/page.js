@@ -7,6 +7,7 @@ import logo from "@/public/AurikaLogo.png";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 function Header() {
   const router = useRouter();
@@ -201,13 +202,13 @@ function Header() {
           </div>
         ) : null}
         <div
-          className={`${theme === "light" ? "bg-stone-200" : "bg-gray-800"}`}
+          className={`${theme === "light" ? "bg-stone-50" : "bg-gray-800"}`}
         >
           <div
-            className={`flex items-center w-11/12 m-auto py-4 justify-between p-4 ${theme === "light" ? "bg-stone-200" : "bg-gray-800"} text-lg text-white`}
+            className={`flex items-center w-11/12 m-auto py-4 justify-between p-4 ${theme === "light" ? "bg-stone-50" : "bg-gray-800"} text-lg text-white`}
           >
             <Image
-              className="bg-stone-200 rounded-full px-3"
+              className="bg-stone-50 rounded-full px-3"
               src={logo}
               alt="Aurika Logo"
               width={200}
@@ -342,6 +343,7 @@ function Header() {
                 </li>
               </ul>
             </div>
+            <ConnectButton chainStatus="none" accountStatus="none"/>
           </div>
         </div>
       </>

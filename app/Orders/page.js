@@ -17,7 +17,7 @@ function Portfolio() {
   const fetchOrders = async () => {
     try {
       const res = await fetch(`/api/users?walletAddress=${walletAddress}`, {
-      headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await res.json();
       if (data.exists) {
@@ -69,11 +69,11 @@ function Portfolio() {
   return (
     <>
       <Header />
-      <div className="bg-gray-100 min-h-[calc(100vh-64px)]">
-        <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-100">
+      <div className="bg-gray-50 min-h-[calc(100vh-64px)]">
+        <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-50">
           <h1 className="text-[38px] font-[550] mb-4">Orders</h1>
         </div>
-        <div className="bg-gray-100 w-92/100 m-auto">
+        <div className="bg-gray-50 w-92/100 m-auto">
           <div className="w-92/100 m-auto">
             {orders.length > 0 ? (
               <table className="w-full border-collapse">
@@ -102,19 +102,38 @@ function Portfolio() {
                               ${
                                 order.type.toLowerCase() === "buy"
                                   ? "text-green-600"
-                                  : "text-red-600"
+                                  : null
+                              } 
+                              ${
+                                order.type.toLowerCase() === "sell"
+                                  ? "text-red-600"
+                                  : null
+                              } 
+                              ${
+                                order.type.toLowerCase() === "gift-to"
+                                  ? "text-red-600"
+                                  : null
+                              } 
+                              ${
+                                order.type.toLowerCase() === "gift received"
+                                  ? "text-green-600"
+                                  : null
                               } 
                             `}
                           >
-                            {order.type.toLowerCase() === "buy"
-                              ? "Buy"
-                              : "Sell"}
+                            {order.type.toLowerCase() === "buy" ? "Buy" : null}
+                            {order.type.toLowerCase() === "sell"
+                              ? "Sell"
+                              : null}
+                            {order.type.toLowerCase() === "gift-from" || order.type.toLowerCase() === "gift received"
+                              ? "Gift"
+                              : null}
                           </span>
                         </td>
                         <td className="p-2 border text-center">{date}</td>
                         <td className="p-2 border text-center">{time}</td>
                         <td className="p-2 border text-right">
-                          {weiToEth(order.avgPrice) * 1000} ETH/gm
+                          {(weiToEth(order.avgPrice) * 1000).toFixed(4)} ETH/gm
                         </td>
                         <td className="p-2 border text-right">
                           {quantityValue} {quantityUnit}

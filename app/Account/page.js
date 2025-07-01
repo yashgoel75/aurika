@@ -44,8 +44,8 @@ function Account() {
   return (
     <>
       <Header />
-      <div className="bg-gray-100">
-        <div className="account-container p-8 bg-gray-100 m-auto w-92/100 min-h-screen">
+      <div className="bg-gray-50">
+        <div className="account-container p-8 bg-gray-50 m-auto w-92/100 min-h-screen">
           <h1 className="text-[38px] font-[550] mb-4">My Account</h1>
           <div className="horizontalRule"></div>
           <h1 className="text-[26px] font-[550] mt-2 mb-2">Account Details</h1>

@@ -99,8 +99,8 @@ function Portfolio() {
   return (
     <>
       <Header />
-      <div className="bg-gray-100 min-h-screen">
-        <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-100">
+      <div className="bg-gray-50 min-h-screen">
+        <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-50">
           <h1 className="text-[38px] font-[550] mb-4">Portfolio</h1>
           <div className="flex flex-col justify-center items-center m-auto w-9/10">
             <Image
