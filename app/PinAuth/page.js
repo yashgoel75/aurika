@@ -33,7 +33,6 @@ function SignIn() {
           inputField.value = currentValue.slice(0, 6);
         }
       }
-      console.log(inputField.value);
     };
   }
 
@@ -42,7 +41,6 @@ function SignIn() {
     if (inputField) {
       inputField.value = "";
     }
-    console.log(inputField.value);
   }
 
   function handleBackspace() {
@@ -50,14 +48,13 @@ function SignIn() {
     if (inputField) {
       inputField.value = inputField.value.slice(0, -1);
     }
-    console.log(inputField.value);
   }
 
   const [name, setName] = useState("");
   useEffect(() => {
     async function getName() {
       const res = await fetch(`/api/users?walletAddress=${account.address}`, {
-              headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -71,13 +68,10 @@ function SignIn() {
     e.preventDefault();
     const inputField = document.querySelector('input[type="password"]');
     const res = await fetch(`/api/users?walletAddress=${account.address}`, {
-            headers: {"Authorization": `Bearer ${localStorage.getItem("token")}`}
-
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
-    console.log(res);
     if (res.ok) {
       const data = await res.json();
-      console.log(data.pin);
       if (data.pin.toString() === inputField.value.toString()) {
         localStorage.setItem("LoggedIn", "true");
         router.push("/Dashboard");

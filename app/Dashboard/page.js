@@ -43,7 +43,7 @@ function Dashboard() {
 
   //constants/variables
   const router = useRouter();
-  const AURIKA_ADDRESS = "0x23db61d27894e33657ec690d7447d7c13219aa8a";
+  const AURIKA_ADDRESS = process.env.AURIKA_ADDRESS;
   const account = useAccount();
   const { address, isConnected } = useAccount();
   const walletAddress = account.address;

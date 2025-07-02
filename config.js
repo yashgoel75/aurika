@@ -22,9 +22,9 @@ import {
 
 const config = getDefaultConfig({
   appName: 'aurika',
-  projectId: 'e7f8475b88d34bc3216a4222b61d2c43',
+  projectId: process.env.REOWN_PROJECT_ID,
   chains: [sepolia],
-  ssr: true, // If your dApp uses server side rendering (SSR)
+  ssr: true,
 });
 
 export default config;
