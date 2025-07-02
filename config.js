@@ -22,7 +22,7 @@ import {
 
 const config = getDefaultConfig({
   appName: 'aurika',
-  projectId: process.env.REOWN_PROJECT_ID,
+  projectId: 'e7f8475b88d34bc3216a4222b61d2c43',
   chains: [sepolia],
   ssr: true,
 });
