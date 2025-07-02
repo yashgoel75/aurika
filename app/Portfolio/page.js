@@ -11,12 +11,14 @@ import AurikaGoldCoin from "@/public/AurikaGoldCoin.png";
 import Footer from "../Footer/page";
 import { aurikaAbi } from "../constants/aurikaAbi";
 import { useContractRead } from "wagmi";
+import { useTheme } from "../context/ThemeContext";
 
 import { parseUnits } from "ethers";
 import { getPriceAbi } from "../constants/getPriceAbi";
 import { BigNumber, isBigNumber, formatUnits } from "ethers";
 
 function Portfolio() {
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const account = useAccount();
   const { address, isConnected } = useAccount();
@@ -99,8 +101,8 @@ function Portfolio() {
   return (
     <>
       <Header />
-      <div className="bg-gray-50 min-h-screen">
-        <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-50">
+      <div className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} min-h-screen`}>
+        <div className={`portfolio-container p-8 w-92/100 m-auto ${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"}`}>
           <h1 className="text-[38px] font-[550] mb-4">Portfolio</h1>
           <div className="flex flex-col justify-center items-center m-auto w-9/10">
             <Image
@@ -110,21 +112,23 @@ function Portfolio() {
               alt="Aurika Coin"
               priority
             ></Image>
-            <div className="grid grid-cols-1 gap-4 max-w-lg w-full mt-6 bg-white p-6 rounded-lg shadow-lg">
+            <div className={`grid grid-cols-1 gap-4 max-w-lg w-full mt-6 ${theme === "light" ? "bg-white text-gray-700" : "bg-gray-700 text-gray-300"} p-6 rounded-lg shadow-lg`}>
               {/* Holdings */}
               <div className="flex justify-between items-center">
-                <span className="text-gray-700 font-semibold text-lg">
+                <span className="font-semibold text-lg">
                   Your Holdings:
                 </span>
                 <span className="text-lg font-medium ">
-                  {quantity < 1000 ? quantity : quantity / 1000}
+                  {quantity < 1000
+                    ? Number(quantity).toFixed(2)
+                    : Number(quantity / 1000).toFixed(3)}
                   {portfolioValueUnit ? " gm" : " mg"}
                 </span>
               </div>
 
               {/* Invested Value */}
               <div className="flex justify-between items-center">
-                <span className="text-gray-700 font-semibold text-lg">
+                <span className="font-semibold text-lg">
                   Invested Value:
                 </span>
                 <span className="text-lg font-medium ">
@@ -134,7 +138,7 @@ function Portfolio() {
 
               {/* Current Value in USD
               <div className="flex justify-between items-center">
-                <span className="text-gray-700 font-semibold text-lg">
+                <span className="font-semibold text-lg">
                   Current Value (USD):
                 </span>
                 <span className="text-lg font-medium ">
@@ -157,11 +161,11 @@ function Portfolio() {
 
               {/* Current Value in ETH */}
               <div className="flex justify-between items-center">
-                <span className="text-gray-700 font-semibold text-lg">
+                <span className="font-semibold text-lg">
                   Current Value (ETH):
                 </span>
                 <span className="text-lg font-medium ">
-                  {currentValueETH} SepoliaETH
+                  {Number(currentValueETH).toFixed(4)} SepoliaETH
                   {valueChangePercent !== "0" &&
                     !isNaN(Number(valueChangePercent)) && (
                       <span
@@ -180,7 +184,7 @@ function Portfolio() {
 
               {/* Net Profit / Loss */}
               <div className="flex justify-between items-center mt-2">
-                <span className="text-gray-700 font-semibold text-lg">
+                <span className="font-semibold text-lg">
                   Net Profit / Loss:
                 </span>
                 <span className="text-lg font-medium">

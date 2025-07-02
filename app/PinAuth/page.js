@@ -6,6 +6,7 @@ import logo from "@/public/AurikaLogo.png";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./page.css";
+import { useTheme } from "../context/ThemeContext";
 
 function SignIn() {
   const router = useRouter();

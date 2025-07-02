@@ -8,6 +8,7 @@ import config from "../../config";
 import { parseUnits } from "ethers";
 import { aurikaAbi } from "../constants/aurikaAbi";
 import { parseEther } from "viem";
+import { useTheme } from "../context/ThemeContext";
 
 import { BigNumber } from "ethers";
 
@@ -96,7 +97,9 @@ function Dashboard() {
   const { writeContract } = useWriteContract();
   const [isVisible, setIsVisible] = useState(false);
 
-  const { data: balance } = useBalance({
+  const { theme, toggleTheme } = useTheme();
+
+  const { data: balance, refetch: refetchBalance } = useBalance({
     address,
     enabled: !!address,
     unit: "ether",
@@ -201,17 +204,6 @@ function Dashboard() {
       }
     }
   }, [userData]);
-
-  const [theme, setTheme] = useState(false);
-
-  useEffect(() => {
-    const theme = localStorage.getItem("theme");
-    if (theme === "light") {
-      setTheme("light");
-    } else {
-      setTheme("light");
-    }
-  });
 
   useEffect(() => {
     if (!ethAmount) {
@@ -417,6 +409,10 @@ function Dashboard() {
     useState(false);
   const [walletAddressToGiftNotVerified, setWalletAddressToGiftNotVerified] =
     useState(false);
+  const [
+    walletAddressToGiftNotVerifiedYet,
+    setWalletAddressToGiftNotVerifiedYet,
+  ] = useState(true);
 
   async function handleWalletAddressToGiftVerification() {
     try {
@@ -430,6 +426,7 @@ function Dashboard() {
 
       if (res.ok && data.exists) {
         setWalletAddressToGiftNotVerified(false);
+        setWalletAddressToGiftNotVerifiedYet(false);
         setWalletAddressToGiftVerified(true);
       } else {
         setWalletAddressToGiftVerified(false);
@@ -540,6 +537,7 @@ function Dashboard() {
 
       // Refetch user data
       await refetchUserData();
+      await refetchBalance();
 
       // Send order to backend as strings
       console.log(account.address);
@@ -635,6 +633,7 @@ function Dashboard() {
       console.log("Sell order transaction receipt:", receipt);
       // Refetch user data
       await refetchUserData();
+      await refetchBalance();
 
       const response = await fetch("/api/users", {
         method: "POST",
@@ -724,6 +723,7 @@ function Dashboard() {
 
       // Refetch user data
       await refetchUserData();
+      await refetchBalance();
 
       // Send order to backend as strings
       console.log(account.address);
@@ -743,7 +743,9 @@ function Dashboard() {
             hash: hash,
             avgPrice: avgPriceBigInt.toString(),
             quantity: quantityBigInt.toString(),
-            totalValue: (Number(avgPriceBigInt) * Number(quantityBigInt)).toString(),
+            totalValue: (
+              Number(avgPriceBigInt) * Number(quantityBigInt)
+            ).toString(),
           },
         }),
       });
@@ -878,7 +880,9 @@ function Dashboard() {
             ></Image>
             <div className="flex justify-center items-center w-40/100">
               {!isSwapped ? (
-                <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                <div
+                  className={`flex items-center w-full ml-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700"} rounded-full px-3 py-2 shadow-md`}
+                >
                   <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
                     <select
                       id="ethUnit"
@@ -892,7 +896,7 @@ function Dashboard() {
                     </select>
                   </h1>
                   <input
-                    className={`${isSwapped ? "ml-1" : "mr-1"} text-lg rounded-full w-60/100 border-violet-400 bg-stone-50 border-1 p-1 pl-3 shadow-md`}
+                    className={`${isSwapped ? "ml-1" : "mr-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} text-lg rounded-full w-60/100 border-violet-400 border-1 p-1 pl-3 shadow-md`}
                     placeholder="1"
                     type="text"
                     value={ethAmount}
@@ -900,7 +904,9 @@ function Dashboard() {
                   />
                 </div>
               ) : (
-                <div className="flex items-center w-full ml-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                <div
+                  className={`flex items-center w-full ml-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} rounded-full px-3 py-2 shadow-md`}
+                >
                   <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
                     <select
                       id="goldUnit"
@@ -913,7 +919,7 @@ function Dashboard() {
                     </select>
                   </h1>
                   <input
-                    className={`${isSwapped ? "mr-1" : "ml-1"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 bg-stone-50 shadow-md`}
+                    className={`${isSwapped ? "mr-1" : "ml-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 shadow-md`}
                     placeholder={0}
                     value={goldAmount}
                     onChange={(e) => setGoldAmount(e.target.value)}
@@ -923,14 +929,16 @@ function Dashboard() {
             </div>
 
             <div className="w-20/100 flex justify-center items-center">
-              <div className="shadow-md bg-white hover:bg-stone-50 hover:shadow-lg cursor-pointer rounded-full p-3">
+              <div
+                className={`shadow-md  ${theme === "light" ? "bg-white hover:bg-stone-50" : "bg-gray-700 text-gray-300"} hover:shadow-lg cursor-pointer rounded-full p-3`}
+              >
                 <svg
                   onClick={handleSwap}
                   xmlns="http://www.w3.org/2000/svg"
                   height="40"
                   viewBox="0 -960 960 960"
                   width="40"
-                  fill="#141414"
+                  fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                 >
                   <path d="m320-160-56-57 103-103H80v-80h287L264-503l56-57 200 200-200 200Zm320-240L440-600l200-200 56 57-103 103h287v80H593l103 103-56 57Z" />
                 </svg>
@@ -939,9 +947,11 @@ function Dashboard() {
 
             <div className="w-40/100 flex justify-center items-center font-onest">
               {!isSwapped ? (
-                <div className="flex items-center w-full mr-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                <div
+                  className={`flex items-center w-full mr-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} rounded-full px-3 py-2 shadow-md`}
+                >
                   <input
-                    className={`${isSwapped ? "mr-1" : "ml-1"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 bg-stone-50 shadow-md`}
+                    className={`${isSwapped ? "mr-1" : "ml-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 shadow-md`}
                     placeholder={0}
                     value={
                       convertedGold ? Number(convertedGold).toFixed(2) : "0.00"
@@ -961,9 +971,11 @@ function Dashboard() {
                   </h1>
                 </div>
               ) : (
-                <div className="flex items-center w-full mr-7 gap-2 bg-white rounded-full px-3 py-2 shadow-md">
+                <div
+                  className={`flex items-center w-full mr-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} rounded-full px-3 py-2 shadow-md`}
+                >
                   <input
-                    className={`${isSwapped ? "ml-1" : "mr-1"} text-lg rounded-full w-60/100 border-violet-400 bg-stone-50 border-1 p-1 pl-3 shadow-md`}
+                    className={`${isSwapped ? "ml-1" : "mr-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} text-lg rounded-full w-60/100 border-violet-400 border-1 p-1 pl-3 shadow-md`}
                     placeholder="1"
                     type="text"
                     value={convertedEth}
@@ -998,35 +1010,39 @@ function Dashboard() {
         <div className="flex justify-center">
           <button
             onClick={handleBuyButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-500 text-lg mt-6 ${buyButton ? `bg-violet-500` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-s-md outline-1 outline-violet-500 text-lg mt-6 ${buyButton ? `bg-violet-500` : `bg-transparent`} ${buyButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out ${theme === "light" ? null : "text-white"}`}
           >
             Buy
           </button>
           <button
             onClick={handleSellButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 outline-1 outline-violet-500 text-lg mt-6 ${sellButton ? `bg-violet-500` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 outline-1 outline-violet-500 text-lg mt-6 ${sellButton ? `bg-violet-500` : `bg-transparent`} ${sellButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out ${theme === "light" ? null : "text-white"}`}
           >
             Sell
           </button>
           <button
             onClick={handleGiftButton}
-            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-500 text-lg mt-6 ${giftButton ? `bg-violet-500` : `bg-transparent`} ${giftButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out`}
+            className={`pt-1 pb-1 pl-2 pr-2 w-20 rounded-e-md outline-1 outline-violet-500 text-lg mt-6 ${giftButton ? `bg-violet-500` : `bg-transparent`} ${giftButton ? `text-white ` : ` text-violet-500`} hover:cursor-pointer hover:bg-violet-600 hover:text-white transition-all duration-200 ease-in-out ${theme === "light" ? null : "text-white"}`}
           >
             Gift
           </button>
         </div>
 
         {buyButton ? (
-          <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
+          <div
+            className={`w-11/12 max-w-2xl mt-6 mx-auto ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-700 text-gray-300"} shadow-xl rounded-xl`}
+          >
             <div className="px-5 py-4 border-b border-gray-200">
-              <h1 className="text-2xl font-semibold text-gray-800 font-onest">
+              <h1 className="text-2xl font-semibold font-onest">
                 Buying from Aurika
               </h1>
             </div>
 
             <div className="flex flex-col items-center gap-4 px-5 py-5">
               <div className="w-full">
-                <label className="text-lg font-medium text-gray-700 min-w-max">
+                <label
+                  className={`text-lg font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"} min-w-max`}
+                >
                   SepoliaETH
                 </label>
 
@@ -1034,7 +1050,7 @@ function Dashboard() {
                   <input
                     type="text"
                     placeholder="0"
-                    className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
                     value={
                       typeof ethAmounttoBuy === "string"
                         ? ethAmounttoBuy
@@ -1055,7 +1071,7 @@ function Dashboard() {
                   </select>
                 </div>
                 <div
-                  className={`flex mt-1 ${isBuyOrderPending || isBuyOrderSuccess || isBuyOrderFailed || isSellOrderPending || isSellOrderSuccess || isSellOrderFailed ? "mb-1" : null} text-gray-600`}
+                  className={`flex mt-1 ${isBuyOrderPending || isBuyOrderSuccess || isBuyOrderFailed || isSellOrderPending || isSellOrderSuccess || isSellOrderFailed ? "mb-1" : null} ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}
                 >
                   <p>
                     {convertedGoldtoBuy
@@ -1122,10 +1138,16 @@ function Dashboard() {
                 ) : null}
 
                 {isBuyHashReady ? (
-                  <p className="mt-2">Transaction Hash: {buyOrderHash}&nbsp;</p>
+                  <p
+                    className={`mt-2 ${theme === "light" ? "text-gray-300" : "text-gray-300"}`}
+                  >
+                    Transaction Hash: {buyOrderHash}&nbsp;
+                  </p>
                 ) : null}
 
-                <div className="flex flex-col items-center justify-center py-3 text-gray-600">
+                <div
+                  className={`flex flex-col items-center justify-center py-3 mt-2 ${theme === "light" ? "text-gray-600" : "text-gray-300"}`}
+                >
                   <p>
                     <strong>Buying Price:&nbsp;</strong>
                     {Number(buyingPrice).toFixed(4)}&nbsp;ETH/gm
@@ -1152,16 +1174,20 @@ function Dashboard() {
         ) : null}
 
         {sellButton ? (
-          <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
+          <div
+            className={`w-11/12 max-w-2xl mt-6 mx-auto  ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-700 text-gray-300"} shadow-xl rounded-xl`}
+          >
             <div className="px-5 py-4 border-b border-gray-200">
-              <h1 className="text-2xl font-semibold text-gray-800 font-onest">
+              <h1 className="text-2xl font-semibold font-onest">
                 Selling to Aurika
               </h1>
             </div>
 
             <div className="flex flex-col items-center gap-4 px-5 py-5">
               <div className="w-full">
-                <label className="text-lg font-medium text-gray-700 min-w-max">
+                <label
+                  className={`text-lg font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"} min-w-max`}
+                >
                   Gold
                 </label>
 
@@ -1169,7 +1195,7 @@ function Dashboard() {
                   <input
                     type="text"
                     placeholder="0"
-                    className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
                     value={
                       typeof goldAmounttoSell === "string"
                         ? goldAmounttoSell
@@ -1187,7 +1213,9 @@ function Dashboard() {
                     <option>GM</option>
                   </select>
                 </div>
-                <div className="flex mt-1 text-gray-600">
+                <div
+                  className={`flex mt-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}
+                >
                   <p>
                     {convertedEthtoSell
                       ? Number(convertedEthtoSell).toFixed(3)
@@ -1253,19 +1281,25 @@ function Dashboard() {
                 ) : null}
 
                 {isSellHashReady ? (
-                  <p className="mt-2">
+                  <p
+                    className={`mt-2 ${theme === "light" ? "text-gray-300" : "text-gray-300"}`}
+                  >
                     Transaction Hash: {sellOrderHash}&nbsp;
                   </p>
                 ) : null}
 
-                <div className="flex flex-col items-center justify-center py-3 text-gray-600">
+                <div
+                  className={`flex flex-col items-center justify-center py-3 mt-2 ${theme === "light" ? "text-gray-600" : "text-gray-300"}`}
+                >
                   <p>
                     <strong>Selling Price:&nbsp;</strong>
                     {Number(buyingPrice).toFixed(4)}&nbsp;ETH/gm
                   </p>
                   <p>
                     <strong>Current Aurika Balance:</strong>&nbsp;
-                    {quantity < 1000 ? quantity : quantity / 1000}
+                    {quantity < 1000
+                      ? Number(quantity).toFixed(3)
+                      : Number(quantity / 1000).toFixed(3)}
                     &nbsp;
                     {portfolioValueUnit ? "gm" : "mg"}
                   </p>
@@ -1284,16 +1318,20 @@ function Dashboard() {
         ) : null}
 
         {giftButton ? (
-          <div className="w-11/12 max-w-2xl mt-6 mx-auto bg-white shadow-xl rounded-xl transition-all duration-300">
+          <div
+            className={`w-11/12 max-w-2xl mt-6 mx-auto ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-700 text-gray-300"} shadow-xl rounded-xl`}
+          >
             <div className="px-5 py-4 border-b border-gray-200">
-              <h1 className="text-2xl font-semibold text-gray-800 font-onest">
+              <h1 className="text-2xl font-semibold font-onest">
                 Gifting through Aurika
               </h1>
             </div>
 
             <div className="flex flex-col items-center gap-4 px-5 py-5">
               <div className="w-full">
-                <label className="text-lg font-medium text-gray-700 min-w-max">
+                <label
+                  className={`text-lg font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"} min-w-max`}
+                >
                   SepoliaETH
                 </label>
 
@@ -1301,7 +1339,7 @@ function Dashboard() {
                   <input
                     type="text"
                     placeholder="0"
-                    className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
                     value={
                       typeof ethAmounttoGift === "string"
                         ? ethAmounttoGift
@@ -1321,7 +1359,9 @@ function Dashboard() {
                     <option>ETH</option>
                   </select>
                 </div>
-                <div className={`flex mt-1 text-gray-600`}>
+                <div
+                  className={`flex mt-1 ${theme === "light" ? "text-gray-600" : "text-gray-400"}`}
+                >
                   <p>
                     {convertedGoldtoGift
                       ? Number(convertedGoldtoGift) < 1000
@@ -1332,7 +1372,9 @@ function Dashboard() {
                 </div>
 
                 <div className="w-full mt-2">
-                  <label className="text-lg font-medium text-gray-700 min-w-max">
+                  <label
+                    className={`text-lg font-medium ${theme === "light" ? "text-gray-700" : "text-gray-300"} min-w-max`}
+                  >
                     Wallet Address
                   </label>
 
@@ -1340,22 +1382,22 @@ function Dashboard() {
                     <input
                       type="text"
                       placeholder="0x"
-                      className="flex-1 px-4 py-2 text-lg text-gray-800 bg-white outline-none focus:outline-none"
+                      className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
                       onChange={(e) => setWalletAddressToGift(e.target.value)}
                     />
                     <button
                       onClick={handleWalletAddressToGiftVerification}
-                      className="px-3 py-1 rounded-sm bg-linear-to-bl from-violet-400 to-purple-700 text-white m-1 hover:cursor-pointer"
+                      className={`px-3 py-1 rounded-sm bg-linear-to-bl from-violet-400 to-purple-700 text-white m-1 hover:cursor-pointer`}
                     >
                       Verify
                     </button>
                   </div>
-                  <div
+                  {/* <div
                     onClick={handleImportFromWalbo}
                     className="w-40 text-center px-3 py-1 mt-1 rounded-sm text-white bg-violet-500 hover:cursor-pointer"
                   >
                     Import from Walbo
-                  </div>
+                  </div> */}
                 </div>
 
                 {walletAddressToGiftVerified ? (
@@ -1457,12 +1499,16 @@ function Dashboard() {
                 ) : null}
 
                 {isGiftHashReady ? (
-                  <p className="mt-2">
+                  <p
+                    className={`mt-2 ${theme === "light" ? "text-gray-300" : "text-gray-300"}`}
+                  >
                     Transaction Hash: {GiftOrderHash}&nbsp;
                   </p>
                 ) : null}
 
-                <div className="flex flex-col items-center justify-center py-3 text-gray-600">
+                <div
+                  className={`flex flex-col items-center justify-center py-3 mt-2 ${theme === "light" ? "text-gray-600" : "text-gray-300"}`}
+                >
                   <p>
                     <strong>Buying Price:&nbsp;</strong>
                     {Number(buyingPrice).toFixed(4)}&nbsp;ETH/gm
@@ -1478,9 +1524,11 @@ function Dashboard() {
                   <button
                     onClick={handleGiftOrder}
                     disabled={
-                      isGiftOrderPending || walletAddressToGiftNotVerified
+                      isGiftOrderPending ||
+                      walletAddressToGiftNotVerified ||
+                      walletAddressToGiftNotVerifiedYet
                     }
-                    className={`${isGiftOrderPending || walletAddressToGiftNotVerified ? "cursor-not-allowed opacity-50" : "hover:cursor-pointer hover:bg-violet-600"} text-lg rounded bg-violet-500 text-white py-1 px-6 transition`}
+                    className={`${isGiftOrderPending || walletAddressToGiftNotVerified || walletAddressToGiftNotVerifiedYet ? "cursor-not-allowed opacity-50" : "hover:cursor-pointer hover:bg-violet-600"} text-lg rounded bg-violet-500 text-white py-1 px-6 transition`}
                   >
                     Gift
                   </button>

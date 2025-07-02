@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./page.css";
 import Footer from "../Footer/page";
+import { useTheme } from "../context/ThemeContext";
 
 function Portfolio() {
   const router = useRouter();
@@ -66,19 +67,44 @@ function Portfolio() {
     };
   };
   console.log(orders);
+  const [ascending, setAscending] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   return (
     <>
       <Header />
-      <div className="bg-gray-50 min-h-[calc(100vh-64px)]">
-        <div className="portfolio-container p-8 w-92/100 m-auto bg-gray-50">
+      <div
+        className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} min-h-[calc(100vh-64px)]`}
+      >
+        <div className="portfolio-container p-8 w-92/100 m-auto">
           <h1 className="text-[38px] font-[550] mb-4">Orders</h1>
         </div>
-        <div className="bg-gray-50 w-92/100 m-auto">
+        <div
+          className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} w-92/100 m-auto`}
+        >
+          <div
+            className={`w-92/100 m-auto text-right ${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"}`}
+          >
+            Sort by:&nbsp;
+            <select
+              value={ascending ? "oldest" : "latest"}
+              onChange={(e) => setAscending(e.target.value === "oldest")}
+              className="border px-2 py-1 rounded"
+            >
+              <option value="latest">Latest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+        </div>
+        <div
+          className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} w-92/100 m-auto mt-2`}
+        >
           <div className="w-92/100 m-auto">
             {orders.length > 0 ? (
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-gray-200">
+                  <tr
+                    className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-700 text-gray-300"}`}
+                  >
                     <th className="p-2 border">Type</th>
                     <th className="p-2 border">Date</th>
                     <th className="p-2 border">Time</th>
@@ -90,15 +116,19 @@ function Portfolio() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[...orders].reverse().map((order, index) => {
-                    const { date, time } = formatDateTime(order.createdAt);
-                    const { value: quantityValue, unit: quantityUnit } =
-                      formatQuantity(order.quantity);
-                    return (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="p-2 border text-center">
-                          <span
-                            className={`
+                  {(ascending ? [...orders] : [...orders].reverse()).map(
+                    (order, index) => {
+                      const { date, time } = formatDateTime(order.createdAt);
+                      const { value: quantityValue, unit: quantityUnit } =
+                        formatQuantity(order.quantity);
+                      return (
+                        <tr
+                          key={index}
+                          className={`${theme === "light" ? "hover:bg-gray-50" : "hover:bg-gray-700"}`}
+                        >
+                          <td className="p-2 border text-center">
+                            <span
+                              className={`
                               ${
                                 order.type.toLowerCase() === "buy"
                                   ? "text-green-600"
@@ -110,7 +140,7 @@ function Portfolio() {
                                   : null
                               } 
                               ${
-                                order.type.toLowerCase() === "gift-to"
+                                order.type.toLowerCase() === "gift-from"
                                   ? "text-red-600"
                                   : null
                               } 
@@ -120,62 +150,67 @@ function Portfolio() {
                                   : null
                               } 
                             `}
-                          >
-                            {order.type.toLowerCase() === "buy" ? "Buy" : null}
-                            {order.type.toLowerCase() === "sell"
-                              ? "Sell"
-                              : null}
-                            {order.type.toLowerCase() === "gift-from" || order.type.toLowerCase() === "gift received"
-                              ? "Gift"
-                              : null}
-                          </span>
-                        </td>
-                        <td className="p-2 border text-center">{date}</td>
-                        <td className="p-2 border text-center">{time}</td>
-                        <td className="p-2 border text-right">
-                          {(weiToEth(order.avgPrice) * 1000).toFixed(4)} ETH/gm
-                        </td>
-                        <td className="p-2 border text-right">
-                          {quantityValue} {quantityUnit}
-                        </td>
-                        <td className="p-2 border text-right">
-                          {weiToEth(order.totalValue)} ETH
-                        </td>
-                        <td className="p-2 border text-center">
-                          <span className="rounded-lg py-1 px-2 bg-green-600 text-white text-sm">
-                            Completed
-                          </span>
-                        </td>
-                        <td className="p-2 border text-center">
-                          <div className="flex justify-center items-center hover:cursor-pointer">
-                            <div>
-                              <span className="no-underline hover:no-underline rounded text-sm">
-                                <a
-                                  className="no-underline hover:no-underline"
-                                  target="_blank"
-                                  href={`https://sepolia.etherscan.io/tx/${order.hash}`}
+                            >
+                              {order.type.toLowerCase() === "buy"
+                                ? "Buy"
+                                : null}
+                              {order.type.toLowerCase() === "sell"
+                                ? "Sell"
+                                : null}
+                              {order.type.toLowerCase() === "gift-from" ||
+                              order.type.toLowerCase() === "gift received"
+                                ? "Gift"
+                                : null}
+                            </span>
+                          </td>
+                          <td className="p-2 border text-center">{date}</td>
+                          <td className="p-2 border text-center">{time}</td>
+                          <td className="p-2 border text-right">
+                            {(weiToEth(order.avgPrice) * 1000).toFixed(4)}{" "}
+                            ETH/gm
+                          </td>
+                          <td className="p-2 border text-right">
+                            {quantityValue} {quantityUnit}
+                          </td>
+                          <td className="p-2 border text-right">
+                            {weiToEth(order.totalValue)} ETH
+                          </td>
+                          <td className="p-2 border text-center">
+                            <span className="rounded-lg py-1 px-2 bg-green-600 text-white text-sm">
+                              Completed
+                            </span>
+                          </td>
+                          <td className="p-2 border text-center">
+                            <div className="flex justify-center items-center hover:cursor-pointer">
+                              <div>
+                                <span className="no-underline hover:no-underline rounded text-sm">
+                                  <a
+                                    className="no-underline hover:no-underline"
+                                    target="_blank"
+                                    href={`https://sepolia.etherscan.io/tx/${order.hash}`}
+                                  >
+                                    View on Etherscan
+                                  </a>
+                                  &nbsp;
+                                </span>
+                              </div>
+                              <div>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  height="24px"
+                                  viewBox="0 -960 960 960"
+                                  width="24px"
+                                  fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                                 >
-                                  View on Etherscan
-                                </a>
-                                &nbsp;
-                              </span>
+                                  <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" />
+                                </svg>
+                              </div>
                             </div>
-                            <div>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                height="24px"
-                                viewBox="0 -960 960 960"
-                                width="24px"
-                                fill="#000000"
-                              >
-                                <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z" />
-                              </svg>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          </td>
+                        </tr>
+                      );
+                    }
+                  )}
                 </tbody>
               </table>
             ) : (
