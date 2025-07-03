@@ -3,7 +3,7 @@ import { sepolia } from 'viem/chains';
 
 export const publicClient = createPublicClient({
   chain: sepolia,
-  transport: http(process.env.RPC_URL),
+  transport: http('https://eth-sepolia.g.alchemy.com/v2/XGpKRqmXhARxO7iDkxRAY'),
 });
 
 let walletClient;
