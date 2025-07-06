@@ -1143,9 +1143,9 @@ function Dashboard() {
 
                 {isBuyHashReady ? (
                   <p
-                    className={`mt-2 ${theme === "light" ? "text-gray-700" : "text-gray-300"} text-pretty md:text-nowrap break-all max-w-full`}
+                    className={`mt-2 ${theme === "light" ? "text-gray-700" : "text-gray-300"} text-pretty break-all max-w-full`}
                   >
-                    Transaction Hash: {buyOrderHash}&nbsp;
+                    Transaction Hash:<br></br>{buyOrderHash}&nbsp;
                   </p>
                 ) : null}
 
@@ -1286,9 +1286,9 @@ function Dashboard() {
 
                 {isSellHashReady ? (
                   <p
-                    className={`mt-2 ${theme === "light" ? "text-gray-700" : "text-gray-300"} text-pretty md:text-nowrap break-all max-w-full`}
+                    className={`mt-2 ${theme === "light" ? "text-gray-700" : "text-gray-300"} text-pretty break-all max-w-full`}
                   >
-                    Transaction Hash: {sellOrderHash}&nbsp;
+                    Transaction Hash:<br></br>{sellOrderHash}&nbsp;
                   </p>
                 ) : null}
 
@@ -1504,7 +1504,7 @@ function Dashboard() {
 
                 {isGiftHashReady ? (
                   <p
-                    className={`mt-2 ${theme === "light" ? "text-gray-700" : "text-gray-300"} text-pretty md:text-nowrap break-all max-w-full`}
+                    className={`mt-2 ${theme === "light" ? "text-gray-700" : "text-gray-300"} text-pretty break-all max-w-full`}
                   >
                     Transaction Hash: {GiftOrderHash}&nbsp;
                   </p>
