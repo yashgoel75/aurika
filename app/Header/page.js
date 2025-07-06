@@ -4,7 +4,7 @@ import "./page.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import logo from "@/public/AurikaLogo.png";
-import darkModelogo from "@/public/AurikaLogoDark.png"
+import darkModelogo from "@/public/AurikaLogoDark.png";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
@@ -67,8 +67,6 @@ function Header() {
   }
   const { theme, toggleTheme } = useTheme();
 
-  
-
   function handleNavigationBar() {
     setShowNavigationBar(!showNavigationBar);
   }
@@ -77,15 +75,17 @@ function Header() {
       <>
         {showNavigationBar ? (
           <div className="navigationOnMobile">
-            <div className="flex flex-col w-10/10 justify-center p-4 bg-slate-100 shadow-lg rounded-lg text-lg text-stone-800">
+            <div className="flex flex-col w-full justify-center bg-slate-100 shadow-lg rounded-lg text-lg text-stone-800">
               <div className="flex justify-between items-center hover:cursor-pointer">
                 <Image
+                  className="ml-3 mt-3"
                   src={logo}
                   alt="Aurika Logo"
-                  width={200}
+                  width={150}
                   onClick={handleDashboardNavigation}
                 />
                 <svg
+                  className="mr-3 mt-3"
                   onClick={handleNavigationBar}
                   xmlns="http://www.w3.org/2000/svg"
                   height="35px"
@@ -160,7 +160,7 @@ function Header() {
                   </li>
                   <li
                     className="flex flex-row items-center hover:cursor-pointer"
-                    onClick={handleSettingsNavigation}
+                    onClick={toggleTheme}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -169,25 +169,39 @@ function Header() {
                       width="24px"
                       fill="#000000"
                     >
-                      <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
-                    </svg>
-                    &nbsp;Settings
-                  </li>
-                  <li
-                    title="Logout"
-                    className="flex flex-row items-center hover:cursor-pointer"
-                    onClick={logout}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="24px"
-                      viewBox="0 -960 960 960"
-                      width="24px"
-                      fill="#000000"
-                    >
-                      <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" />
+                      <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm40-83q119-15 199.5-104.5T800-480q0-123-80.5-212.5T520-797v634Z" />
                     </svg>
                     &nbsp;
+                    {theme === "light"
+                      ? "Switch to Dark Mode"
+                      : "Switch to Light Mode"}
+                  </li>
+                  <li className="mr-4" title="Logout">
+                    <a
+                      className="flex flex-row items-center hover:cursor-pointer"
+                      onClick={logout}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#000000"
+                      >
+                        <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
+                      </svg>
+                      &nbsp;Logout
+                    </a>
+                  </li>
+
+                  <li className="mr-4">
+                    <a className="flex flex-row items-center hover:cursor-pointer">
+                      <ConnectButton
+                        accountStatus="none"
+                        chainStatus="none"
+                        showBalance={true}
+                      />
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -196,10 +210,10 @@ function Header() {
         ) : null}
         <div className={`${theme === "light" ? "bg-stone-50" : "bg-gray-800"}`}>
           <div
-            className={`flex items-center w-11/12 m-auto py-4 justify-between p-4 ${theme === "light" ? "bg-stone-50" : "bg-gray-800"} text-lg text-white`}
+            className={`flex items-center w-full md:w-11/12 m-auto py-4 justify-between p-4 ${theme === "light" ? "bg-stone-50" : "bg-gray-800"} text-lg text-white`}
           >
             <Image
-              className={`${theme === "light" ? "bg-stone-50" : "bg-gray-800"} rounded-full px-3`}  
+              className={`${theme === "light" ? "bg-stone-50" : "bg-gray-800"} rounded-full pr-3 md:px-3`}
               src={theme === "light" ? logo : darkModelogo}
               alt="Aurika Logo"
               width={200}
@@ -212,11 +226,13 @@ function Header() {
               viewBox="0 -960 960 960"
               width="24px"
               fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
-              className="lg:hidden block cursor-pointer"
+              className="lg:hidden block cursor-pointer mr-3"
             >
               <path d="M120-120v-80h720v80H120Zm0-320v-80h720v80H120Zm0-320v-80h720v80H120Z" />
             </svg>
-            <div className={`flex items-center ${theme === "light" ? "bg-gray-100" : "bg-gray-700"} space-x-4 text-stone-800 lg:block hidden shadow-lg rounded-full pt-2 pl-3`}>
+            <div
+              className={`flex items-center ${theme === "light" ? "bg-gray-100" : "bg-gray-700"} space-x-4 text-stone-800 lg:block hidden shadow-lg rounded-full pt-2 pl-3`}
+            >
               <ul
                 className={`flex space-x-4 ${theme === "light" ? "text-gray-700" : "text-gray-300"}`}
               >
@@ -342,7 +358,7 @@ function Header() {
                 </li>
               </ul>
             </div>
-            <div className="px-3">
+            <div className="px-3 hidden lg:block">
               <ConnectButton chainStatus="none" accountStatus="none" />
             </div>
           </div>

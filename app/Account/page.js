@@ -49,7 +49,7 @@ function Account() {
       <Header />
       <div className={`${theme === "light" ? "bg-gray-50" : "bg-gray-800"}`}>
         <div
-          className={`account-container p-8 ${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} m-auto w-92/100 min-h-screen`}
+          className={`account-container p-8 ${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} m-auto w-full sm:w-11/12 md:w-92/100 min-h-screen`}
         >
           <h1 className="text-[38px] font-[550] mb-4">My Account</h1>
           <div className="horizontalRule"></div>
@@ -62,9 +62,11 @@ function Account() {
             <span className="font-semibold">Email:&nbsp;</span>
             <span className="font-thin">{email}</span>
           </p>
-          <p className="text-[20px] mb-2">
-            <span className="font-semibold">Wallet Address:</span>&nbsp;
-            <span className="font-thin">{address}</span>
+          <p className="text-[20px] mb-2 flex flex-col md:flex-row">
+            <span className="font-semibold">Wallet Address:</span>
+            <span className="font-thin ml-0 md:ml-1 text-pretty md:text-nowrap break-all max-w-full">
+              {address}
+            </span>
           </p>
           <div className="horizontalRule"></div>
           <h1 className="text-2xl font-[550] mt-2 mb-2">Security</h1>

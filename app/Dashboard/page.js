@@ -43,7 +43,7 @@ function Dashboard() {
 
   //constants/variables
   const router = useRouter();
-  const AURIKA_ADDRESS = '0x23db61d27894e33657ec690d7447d7c13219aa8a';
+  const AURIKA_ADDRESS = "0x23db61d27894e33657ec690d7447d7c13219aa8a";
   const account = useAccount();
   const { address, isConnected } = useAccount();
   const walletAddress = account.address;
@@ -490,6 +490,7 @@ function Dashboard() {
   const [isBuyHashReady, setIsBuyHashReady] = useState(false);
   const [buyOrderHash, setBuyOrderHash] = useState("");
 
+  const { writeContractAsync } = useWriteContract();
   const handleBuyOrder = async () => {
     try {
       setIsBuyOrderPending(true);
@@ -498,7 +499,7 @@ function Dashboard() {
       setIsBuyHashReady(false);
 
       const account = await getAccount();
-      if (!account) throw new Error("No wallet connected");
+      if (!address) throw new Error("No wallet connected");
 
       // Convert gold quantity to milligrams (BigInt)
       const quantityBigInt = BigInt(Math.round(Number(convertedGoldtoBuy))); // in mg
@@ -514,8 +515,8 @@ function Dashboard() {
       const avgPriceBigInt = amountInWei / quantityBigInt;
 
       // Execute the contract write
-      const walletClient = await getWalletClient();
-      const hash = await walletClient.writeContract({
+      // const walletClient = await getWalletClient();
+      const hash = await writeContractAsync({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
         functionName: "buyOrder",
@@ -540,7 +541,7 @@ function Dashboard() {
       await refetchBalance();
 
       // Send order to backend as strings
-      console.log(account.address);
+      console.log(address);
       const response = await fetch("/api/users", {
         method: "POST",
         headers: {
@@ -591,7 +592,7 @@ function Dashboard() {
       setIsSellHashReady(false);
 
       const account = await getAccount();
-      if (!account) throw new Error("No wallet connected");
+      if (!address) throw new Error("No wallet connected");
 
       // Convert gold amount to milligrams (BigInt)
       const goldInMg =
@@ -613,8 +614,8 @@ function Dashboard() {
       const avgPriceBigInt = ethValue / goldInMg;
 
       // Execute the contract write
-      const walletClient = await getWalletClient();
-      const hash = await walletClient.writeContract({
+      // const walletClient = await getWalletClient();
+      const hash = await writeContractAsync({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
         functionName: "sellOrder",
@@ -684,7 +685,7 @@ function Dashboard() {
       setIsGiftHashReady(false);
 
       const account = await getAccount();
-      if (!account) throw new Error("No wallet connected");
+      if (!address) throw new Error("No wallet connected");
 
       // Convert gold quantity to milligrams (BigInt)
       const quantityBigInt = BigInt(Math.round(Number(convertedGoldtoGift))); // in mg
@@ -700,8 +701,8 @@ function Dashboard() {
       const avgPriceBigInt = amountInWei / quantityBigInt;
 
       // Execute the contract write
-      const walletClient = await getWalletClient();
-      const hash = await walletClient.writeContract({
+      // const walletClient = await getWalletClient();
+      const hash = await writeContractAsync({
         address: AURIKA_ADDRESS,
         abi: aurikaAbi,
         functionName: "gift",
@@ -726,7 +727,7 @@ function Dashboard() {
       await refetchBalance();
 
       // Send order to backend as strings
-      console.log(account.address);
+      // console.log(account.address);
       const response = await fetch("/api/users", {
         method: "POST",
         headers: {
@@ -864,29 +865,29 @@ function Dashboard() {
             <div className="horizontalRule"></div>
           </div>
         </div>
-        {/* <div className="account-container pl-8 pt-8 bg-gray-100">
-          <h1 className="text-[24px] font-onest font-bold mb-2">Gold Locker</h1>
-          </div> */}
         <div
           className={`flex p-4 pt-5 w-92/100 m-auto justify-center ${theme === "light" ? "bg-stone-50" : "bg-gray-800"}`}
         >
-          <div className="flex items-center w-95/100 m-auto">
+          <div className="flex flex-col lg:flex-row items-center w-95/100 m-auto gap-4 lg:gap-0">
+            {/* Left Image */}
             <Image
-              className="bg-white shadow-lg"
+              className="bg-white shadow-lg hidden lg:block"
               src={isSwapped ? AurikaGoldCoin : EthereumCoin}
               style={imageStyle}
               alt={isSwapped ? "Aurika" : "Ethereum Coin"}
               priority
-            ></Image>
-            <div className="flex justify-center items-center w-40/100">
+            />
+
+            {/* Left Input */}
+            <div className="flex justify-center items-center w-full lg:w-40/100">
               {!isSwapped ? (
                 <div
-                  className={`flex items-center w-full ml-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700"} rounded-full px-3 py-2 shadow-md`}
+                  className={`flex items-center w-full gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700"} rounded-full mx-3 px-3 py-2 shadow-md`}
                 >
-                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                  <h1 className="m-1 text-center bg-gradient-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-30/100 lg:w-40/100 border border-purple-300 rounded-full">
                     <select
                       id="ethUnit"
-                      className="border-none outline-none focus:ring-0"
+                      className="border-none outline-none focus:ring-0 bg-transparent w-full text-center"
                       value={ethUnitType}
                       onChange={(e) => setEthUnitType(e.target.value)}
                     >
@@ -896,7 +897,7 @@ function Dashboard() {
                     </select>
                   </h1>
                   <input
-                    className={`${isSwapped ? "ml-1" : "mr-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} text-lg rounded-full w-60/100 border-violet-400 border-1 p-1 pl-3 shadow-md`}
+                    className={`${isSwapped ? "ml-1" : "mr-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} text-lg rounded-full w-70/100 lg:w-60/100 border-violet-400 border p-1 pl-3 shadow-md`}
                     placeholder="1"
                     type="text"
                     value={ethAmount}
@@ -905,12 +906,12 @@ function Dashboard() {
                 </div>
               ) : (
                 <div
-                  className={`flex items-center w-full ml-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} rounded-full px-3 py-2 shadow-md`}
+                  className={`flex items-center w-full gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} rounded-full mx-3 px-3 py-2 shadow-md`}
                 >
-                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                  <h1 className="m-1 text-center bg-gradient-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-30/100 lg:w-40/100 border border-purple-300 rounded-full">
                     <select
                       id="goldUnit"
-                      className="border-none outline-none focus:ring-0"
+                      className="border-none outline-none focus:ring-0 bg-transparent w-full text-center"
                       value={goldUnitType}
                       onChange={(e) => setGoldToEthUnitType(e.target.value)}
                     >
@@ -919,7 +920,7 @@ function Dashboard() {
                     </select>
                   </h1>
                   <input
-                    className={`${isSwapped ? "mr-1" : "ml-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 shadow-md`}
+                    className={`${isSwapped ? "mr-1" : "ml-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} rounded-full text-lg w-70/100 lg:w-60/100  border border-violet-400 p-1 pl-3 shadow-md`}
                     placeholder={0}
                     value={goldAmount}
                     onChange={(e) => setGoldAmount(e.target.value)}
@@ -928,9 +929,10 @@ function Dashboard() {
               )}
             </div>
 
-            <div className="w-20/100 flex justify-center items-center">
+            {/* Swap Icon */}
+            <div className="w-full lg:w-20/100 flex justify-center items-center">
               <div
-                className={`shadow-md  ${theme === "light" ? "bg-white hover:bg-stone-50" : "bg-gray-700 text-gray-300"} hover:shadow-lg cursor-pointer rounded-full p-3`}
+                className={`shadow-md ${theme === "light" ? "bg-white hover:bg-stone-50" : "bg-gray-700 text-gray-300"} hover:shadow-lg cursor-pointer rounded-full p-3`}
               >
                 <svg
                   onClick={handleSwap}
@@ -945,23 +947,24 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="w-40/100 flex justify-center items-center font-onest">
+            {/* Right Input */}
+            <div className="w-full lg:w-40/100 flex justify-center items-center font-onest">
               {!isSwapped ? (
                 <div
-                  className={`flex items-center w-full mr-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} rounded-full px-3 py-2 shadow-md`}
+                  className={`flex items-center w-full gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} mx-3 rounded-full px-3 py-2 shadow-md`}
                 >
                   <input
-                    className={`${isSwapped ? "mr-1" : "ml-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} rounded-full text-lg w-60/100 border-1 border-violet-400 p-1 pl-3 shadow-md`}
+                    className={`${isSwapped ? "mr-1" : "ml-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} rounded-full text-lg w-70/100 lg:w-60/100  border border-violet-400 p-1 pl-3 shadow-md`}
                     placeholder={0}
                     value={
                       convertedGold ? Number(convertedGold).toFixed(2) : "0.00"
                     }
                     disabled
                   />
-                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                  <h1 className="m-1 text-center bg-gradient-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-30/100 lg:w-40/100 border border-purple-300 rounded-full">
                     <select
                       id="goldUnit"
-                      className="border-none outline-none focus:ring-0"
+                      className="text-center border-none outline-none focus:ring-0 bg-transparent w-full"
                       value={goldUnitType}
                       onChange={(e) => setGoldUnitType(e.target.value)}
                     >
@@ -972,19 +975,19 @@ function Dashboard() {
                 </div>
               ) : (
                 <div
-                  className={`flex items-center w-full mr-7 gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} rounded-full px-3 py-2 shadow-md`}
+                  className={`flex items-center w-full gap-2 ${theme === "light" ? "bg-white" : "bg-gray-700 text-gray-300"} mx-3 rounded-full px-3 py-2 shadow-md`}
                 >
                   <input
-                    className={`${isSwapped ? "ml-1" : "mr-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} text-lg rounded-full w-60/100 border-violet-400 border-1 p-1 pl-3 shadow-md`}
+                    className={`${isSwapped ? "ml-1" : "mr-1"} ${theme === "light" ? "bg-stone-50" : "bg-gray-800 text-gray-300"} text-lg rounded-full w-70/100 lg:w-60/100 border border-violet-400 p-1 pl-3 shadow-md`}
                     placeholder="1"
                     type="text"
                     value={convertedEth}
                     disabled
                   />
-                  <h1 className="m-1 text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-40/100 border border-purple-300 rounded-full">
+                  <h1 className="m-1 text-center bg-gradient-to-bl from-violet-400 to-purple-700 text-white p-1 text-lg w-30/100 lg:w-40/100 border border-purple-300 rounded-full">
                     <select
                       id="ethUnit"
-                      className="border-none outline-none focus:ring-0"
+                      className="border-none outline-none focus:ring-0 bg-transparent w-full text-center"
                       value={ethOutputUnitType}
                       onChange={(e) => setEthOutputUnitType(e.target.value)}
                     >
@@ -997,13 +1000,14 @@ function Dashboard() {
               )}
             </div>
 
+            {/* Right Image */}
             <Image
-              className="bg-white shadow-lg"
+              className="bg-white shadow-lg hidden lg:block"
               src={isSwapped ? EthereumCoin : AurikaGoldCoin}
               style={imageStyle}
               alt={isSwapped ? "Ethereum Coin" : "Aurika"}
               priority
-            ></Image>
+            />
           </div>
         </div>
 

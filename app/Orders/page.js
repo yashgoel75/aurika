@@ -75,11 +75,12 @@ function Portfolio() {
       <div
         className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} min-h-[calc(100vh-64px)]`}
       >
-        <div className="portfolio-container p-8 w-92/100 m-auto">
+        <div className="portfolio-container p-8 w-full md:w-92/100 m-auto">
           <h1 className="text-[38px] font-[550] mb-4">Orders</h1>
+          <div className="horizontalRule"></div>
         </div>
         <div
-          className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} w-92/100 m-auto`}
+          className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} w-full md:w-92/100 m-auto`}
         >
           <div
             className={`w-92/100 m-auto text-right ${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"}`}
@@ -98,7 +99,7 @@ function Portfolio() {
         <div
           className={`${theme === "light" ? "bg-gray-50 text-gray-700" : "bg-gray-800 text-gray-300"} w-92/100 m-auto mt-2`}
         >
-          <div className="w-92/100 m-auto">
+          <div className="w-full overflow-y-auto md:w-92/100 m-auto">
             {orders.length > 0 ? (
               <table className="w-full border-collapse">
                 <thead>
