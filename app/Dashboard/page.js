@@ -1054,7 +1054,7 @@ function Dashboard() {
                   <input
                     type="text"
                     placeholder="0"
-                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
+                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} w-70/100 md:w-80/100 outline-none focus:outline-none`}
                     value={
                       typeof ethAmounttoBuy === "string"
                         ? ethAmounttoBuy
@@ -1065,7 +1065,7 @@ function Dashboard() {
 
                   <select
                     id="currency"
-                    className="bg-linear-to-bl from-violet-400 to-purple-700 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    className="bg-linear-to-bl from-violet-400 to-purple-700 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 w-30/100 md:w-20/100 transition"
                     value={ethUnitTypetoBuy}
                     onChange={(e) => setEthUnitTypetoBuy(e.target.value)}
                   >
@@ -1199,7 +1199,7 @@ function Dashboard() {
                   <input
                     type="text"
                     placeholder="0"
-                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
+                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} w-70/100 md:w-80/100 outline-none focus:outline-none`}
                     value={
                       typeof goldAmounttoSell === "string"
                         ? goldAmounttoSell
@@ -1211,7 +1211,7 @@ function Dashboard() {
                     value={goldToEthUnitTypetoSell}
                     onChange={(e) => setGoldToEthUnitTypetoSell(e.target.value)}
                     id="quantity"
-                    className="bg-linear-to-bl from-violet-400 to-purple-700 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    className="text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 w-30/100 md:w-20/100 transition"
                   >
                     <option>MG</option>
                     <option>GM</option>
@@ -1343,7 +1343,7 @@ function Dashboard() {
                   <input
                     type="text"
                     placeholder="0"
-                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
+                    className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} w-70/100 md:w-80/100 outline-none focus:outline-none`}
                     value={
                       typeof ethAmounttoGift === "string"
                         ? ethAmounttoGift
@@ -1354,7 +1354,7 @@ function Dashboard() {
 
                   <select
                     id="currency"
-                    className="bg-linear-to-bl from-violet-400 to-purple-700 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 transition"
+                    className="text-center bg-linear-to-bl from-violet-400 to-purple-700 text-white text-center text-lg px-3 py-2 cursor-pointer outline-none focus:ring-0 hover:bg-violet-600 w-30/100 md:w-20/100 transition"
                     value={ethUnitTypetoGift}
                     onChange={(e) => setEthUnitTypetoGift(e.target.value)}
                   >
@@ -1386,12 +1386,12 @@ function Dashboard() {
                     <input
                       type="text"
                       placeholder="0x"
-                      className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none`}
+                      className={`flex-1 px-4 py-2 text-lg ${theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-300"} outline-none focus:outline-none w-70/100 md:w-90/100`}
                       onChange={(e) => setWalletAddressToGift(e.target.value)}
                     />
                     <button
                       onClick={handleWalletAddressToGiftVerification}
-                      className={`px-3 py-1 rounded-sm bg-linear-to-bl from-violet-400 to-purple-700 text-white m-1 hover:cursor-pointer`}
+                      className={`px-3 py-1 rounded-sm bg-linear-to-bl from-violet-400 to-purple-700 text-white m-1 w-30/100 md:w-10/100 hover:cursor-pointer`}
                     >
                       Verify
                     </button>
