@@ -73,13 +73,16 @@ function Header() {
   return (
     !loading && (
       <>
+      
         {showNavigationBar ? (
           <div className="navigationOnMobile">
-            <div className="flex flex-col w-full justify-center bg-slate-100 shadow-lg rounded-lg text-lg text-stone-800">
+            <div
+              className={`flex flex-col w-full justify-center ${theme === "light" ? "bg-stone-50 text-gray-800" : "bg-gray-900 text-gray-300"} shadow-lg text-lg`}
+            >
               <div className="flex justify-between items-center hover:cursor-pointer">
                 <Image
                   className="ml-3 mt-3"
-                  src={logo}
+                  src={theme === "light" ? logo : darkModelogo}
                   alt="Aurika Logo"
                   width={150}
                   onClick={handleDashboardNavigation}
@@ -91,13 +94,13 @@ function Header() {
                   height="35px"
                   viewBox="0 -960 960 960"
                   width="35px"
-                  fill="#000000"
+                  fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                 >
                   <path d="m336-280-56-56 144-144-144-143 56-56 144 144 143-144 56 56-144 143 144 144-56 56-143-144-144 144Z" />
                 </svg>
               </div>
               <div>
-                <ul className="flex flex-col pl-6 space-y-4 text-lg text-stone-800 mt-4 mb-4">
+                <ul className="flex flex-col pl-6 space-y-4 text-lg mt-4 mb-4">
                   <li
                     className="flex flex-row items-center hover:cursor-pointer"
                     onClick={handleDashboardNavigation}
@@ -107,7 +110,7 @@ function Header() {
                       height="24px"
                       viewBox="0 -960 960 960"
                       width="24px"
-                      fill="#000000"
+                      fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                     >
                       <path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" />
                     </svg>
@@ -122,7 +125,7 @@ function Header() {
                       height="24px"
                       viewBox="0 -960 960 960"
                       width="24px"
-                      fill="#000000"
+                      fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                     >
                       <path d="M200-280v-280h80v280h-80Zm240 0v-280h80v280h-80ZM80-120v-80h800v80H80Zm600-160v-280h80v280h-80ZM80-640v-80l400-200 400 200v80H80Zm178-80h444-444Zm0 0h444L480-830 258-720Z" />
                     </svg>
@@ -137,7 +140,7 @@ function Header() {
                       height="24px"
                       viewBox="0 -960 960 960"
                       width="24px"
-                      fill="#000000"
+                      fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                     >
                       <path d="M120-80v-800l60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60v800l-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60Zm120-200h480v-80H240v80Zm0-160h480v-80H240v80Zm0-160h480v-80H240v80Zm-40 404h560v-568H200v568Zm0-568v568-568Z" />
                     </svg>
@@ -152,7 +155,7 @@ function Header() {
                       height="24px"
                       viewBox="0 -960 960 960"
                       width="24px"
-                      fill="#000000"
+                      fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                     >
                       <path d="M234-276q51-39 114-61.5T480-360q69 0 132 22.5T726-276q35-41 54.5-93T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 59 19.5 111t54.5 93Zm246-164q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q53 0 100-15.5t86-44.5q-39-29-86-44.5T480-280q-53 0-100 15.5T294-220q39 29 86 44.5T480-160Zm0-360q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0-60Zm0 360Z" />
                     </svg>
@@ -167,7 +170,7 @@ function Header() {
                       height="24px"
                       viewBox="0 -960 960 960"
                       width="24px"
-                      fill="#000000"
+                      fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                     >
                       <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm40-83q119-15 199.5-104.5T800-480q0-123-80.5-212.5T520-797v634Z" />
                     </svg>
@@ -186,7 +189,7 @@ function Header() {
                         height="24px"
                         viewBox="0 -960 960 960"
                         width="24px"
-                        fill="#000000"
+                        fill={`${theme === "light" ? "#000000" : "#e0dfde"}`}
                       >
                         <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
                       </svg>
