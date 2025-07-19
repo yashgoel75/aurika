@@ -220,6 +220,7 @@ function Portfolio() {
           </div>
         </div>
       </div>
+      <div className={`${theme === "light" ? "bg-gray-50 text-gray-50" : "bg-gray-800 text-gray-800"}`}>Hello</div>
       <Footer></Footer>
     </>
   );
