@@ -73,7 +73,6 @@ function Header() {
   return (
     !loading && (
       <>
-      
         {showNavigationBar ? (
           <div className="navigationOnMobile">
             <div
